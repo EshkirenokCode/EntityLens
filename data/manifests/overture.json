@@ -1,0 +1,19 @@
+{
+  "source": "overture",
+  "path": "data/raw/overture-ca9b97ccc482.geojson",
+  "sha256": "ca9b97ccc482115b7c315b2bc84fd6a788329a1a8cc44fa5694ad9d8bf693eff",
+  "bytes": 50398098,
+  "retrieved_at": "2026-10-23T17:49:12.688476+00:00",
+  "url": "https://docs.overturemaps.org/guides/places/",
+  "selection": {
+    "bbox": [
+      -74.012,
+      40.71,
+      -73.985,
+      40.73
+    ],
+    "type": "place",
+    "release": "2026-10-21.0"
+  },
+  "schema_version": "source-native-v1"
+}

@@ -1,0 +1,15 @@
+{
+  "source": "nyc",
+  "path": "data/raw/nyc-fc0ded8859d3.json",
+  "sha256": "fc0ded8859d37f349886447f67dbe394e08b81b3ed2955cc483e352c08b268e9",
+  "bytes": 6393487,
+  "retrieved_at": "2026-10-23T17:48:22.387228+00:00",
+  "url": "https://data.cityofnewyork.us/resource/43nn-pn8j.json?%24select=camis%2Cdba%2Cbuilding%2Cstreet%2Czipcode%2Cphone%2Ccuisine_description%2Clatitude%2Clongitude%2Cinspection_date%2Crecord_date&%24where=boro%3D%27Manhattan%27+AND+latitude+between+40.71+and+40.73+AND+longitude+between+-74.012+and+-73.985&%24limit=50000&%24order=camis%2Cinspection_date+DESC",
+  "selection": {
+    "$select": "camis,dba,building,street,zipcode,phone,cuisine_description,latitude,longitude,inspection_date,record_date",
+    "$where": "boro='Manhattan' AND latitude between 40.71 and 40.73 AND longitude between -74.012 and -73.985",
+    "$limit": "50000",
+    "$order": "camis,inspection_date DESC"
+  },
+  "schema_version": "source-native-v1"
+}

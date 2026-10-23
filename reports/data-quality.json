@@ -1,0 +1,25 @@
+{
+  "records": 7118,
+  "sources": {
+    "nyc": 2222,
+    "overture": 4896
+  },
+  "candidates": 66660,
+  "reduction_ratio": 0.9938725490196079,
+  "missingness": {
+    "nyc": {
+      "name": 0.0,
+      "address": 0.0,
+      "phone": 0.0009000900090009,
+      "lat": 0.0
+    },
+    "overture": {
+      "name": 0.0,
+      "address": 0.01082516339869281,
+      "phone": 0.15727124183006536,
+      "lat": 0.0
+    }
+  },
+  "label_status": "No independently reviewed gold",
+  "candidate_recall": null
+}
