@@ -14,7 +14,7 @@ def tick():
         c.execute("BEGIN IMMEDIATE")
         now = time.time()
         c.execute(
-            "UPDATE jobs SET status='queued',lease=NULL WHERE status='running' AND lease<?",
+            "UPDATE jobs SET status=CASE WHEN attempts>=3 THEN 'failed' ELSE 'queued' END,lease=NULL WHERE status='running' AND lease<?",
             (now,),
         )
         r = c.execute(

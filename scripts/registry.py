@@ -20,16 +20,22 @@ state = (
 )
 if args.action == "register":
     digest = hashlib.sha256((BASE / "model.pkl").read_bytes()).hexdigest()
-    v = digest[:16]
+    v = hashlib.sha256(
+        (BASE / "model.pkl").read_bytes() + (BASE / "manifest.json").read_bytes()
+    ).hexdigest()[:16]
     folder = REG / v
     folder.mkdir(exist_ok=True)
-    shutil.copy2(BASE / "model.pkl", folder / "model.pkl")
-    shutil.copy2(BASE / "manifest.json", folder / "manifest.json")
-    state["models"][v] = dict(
-        state="candidate",
-        sha256=digest,
-        registered=datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        policy="review-only",
+    if v not in state["models"]:
+        shutil.copy2(BASE / "model.pkl", folder / "model.pkl")
+        shutil.copy2(BASE / "manifest.json", folder / "manifest.json")
+    state["models"].setdefault(
+        v,
+        dict(
+            state="candidate",
+            sha256=digest,
+            registered=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            policy="review-only",
+        ),
     )
     print(v)
 elif args.action == "evaluate":

@@ -133,14 +133,14 @@
       "positive": 347
     }
   },
-  "training_seconds": 0.764746904373169,
+  "training_seconds": 0.7634730339050293,
   "hardware": {
     "platform": "macOS-26.6.2-arm64-arm-64bit",
     "cpu": "arm",
     "cores": 14
   },
   "source_hashes": {
-    "scripts/train.py": "f5bfd9261382fa1451139cc2b6d970692ef0beaf73bab6a6e1a8adf0371f4b23",
+    "scripts/train.py": "9e71e75cc0b7e2ab42f49cb176cbe74ce1cf496765351605abfd22e3d61d21d7",
     "concord/features.py": "e35d6a6e855227f2cf1880500dc56e3189bafb07df04837ae483952f212f9018",
     "concord/inference.py": "1ad4650da9d08d97916a413eaab59ee2f6be84bcf9d4cc1a740d8c1a5f72b096"
   },
@@ -148,7 +148,7 @@
     "overture": "ca9b97ccc482115b7c315b2bc84fd6a788329a1a8cc44fa5694ad9d8bf693eff",
     "nyc": "fc0ded8859d37f349886447f67dbe394e08b81b3ed2955cc483e352c08b268e9"
   },
-  "code_revision": "321c0177edabc0f4ec478ef4ebfb7bc9a55b5ff8",
+  "code_revision": "ba5432aa9571a341df2c2f865a9dfe095ec08a27",
   "policy": "review-only",
   "candidate_recall": null,
   "cluster_metrics": null,

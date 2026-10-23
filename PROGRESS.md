@@ -1,13 +1,30 @@
-# Progress
+# Progress — 2026-10-24
 
-## Stage 0 — underway
+## Implemented and verified locally
 
-- Read product brief and inspected workspace; upstream repository is empty.
-- Git author taken from the owner's existing public commit history.
-- NYC Socrata endpoint responds with real records; Overture current documentation and per-source licensing verified.
-- Architecture, identity policy and delivery sequence recorded.
-- Next: bounded snapshots, manifests and data feasibility measurements, followed by the first persistent workbench.
+- Architecture, identity policy, source attribution, labeling and evaluation contract, ADRs.
+- Independent real NYC DOHMH and Overture snapshots with SHA-256 manifests; repeated inspections deduplicated by CAMIS.
+- 7,118 food establishment records and 66,660 spatial/lexical candidates. Input quality report saved.
+- Persistent FastAPI/React workbench: source manifests, matching jobs, search, pair evidence, group impact preview, review, canonical provenance, decision history and undo.
+- SQLite WAL transactions, idempotency, source/revision checks, full-component cannot-link checks, branch/location guards, leased worker, retry/cancellation and expired-lease recovery.
+- Snapshot update command preserves old record versions and source-change audit events. Simulated source-version change is covered by regression test; no real second temporal snapshot is claimed.
+- CPU gradient boosting training, train-only lexical SVD ablation, geographic record-disjoint manifests, validation selection, keyed predictions and explicit silver limitations.
+- Local hashed model registry with evaluated/active states and rollback command; active review-only model registered.
+- Monitoring endpoints and bounded export; single batch completed in 8.93 seconds; warm HTTP measurements saved separately.
+- Browser verified: real pair display, provisional confirmation, canonical source lineage, undo and Evaluation screen. Narrow viewport inspected. Production frontend build and regression checks passed.
+- Reproducible local commands, Docker/Compose definitions, operational guide and demo script.
+- Stages pushed to the owner's GitHub with owner identity. No coauthor trailers.
 
-## Completion criteria
+## Evidence boundaries and remaining work
 
-Working independent-source workflow; trained model and honest provenance; reproducible manifests and metrics; stale-safe review, constraint enforcement and undo; tests, CI, browser checks and documentation. Independent human gold remains a separate requirement and will never be fabricated.
+- No independent human gold. An 80-row stratified unlabeled queue is prepared. Silver perfect scores only establish reproduction of heuristic rules; ambiguous renamings can still rank highly.
+- Geographic split proves record isolation, not adjudicated entity/component isolation. Build a new independently reviewed, entity-grouped sealed test before claims of matching accuracy. Outside-retrieval recall, cluster quality and independent calibration remain unmeasured.
+- Review-only policy stays enabled. Neural multilingual encoder/fine-tuning is deferred pending adequate labels; SVD is not a neural encoder.
+- Implemented storage is SQLite. PostgreSQL/PostGIS, Alembic migrations, durable external canonical IDs, public authentication/session isolation and lease heartbeats are not implemented.
+- Docker is unavailable here, so Compose is unverified. No production deployment or paid resources created.
+- GitHub token lacks workflow scope. Intended CI configuration is docs/ci.yml.template; hosted CI is not enabled.
+- Browser testing covers the core flow and a narrow viewport, not a complete cross-browser/error-state accessibility audit. Coordinate display is a schematic, without external map tiles.
+
+## Continue from here
+
+Do not retrain/tune from the current holdout and call it a new sealed test. First adjudicate real entity groups and independent labels, including branches, shared premises, renamed businesses and missed candidates. Then finish PostgreSQL migration, stable entity identity and public-demo isolation, run full UI/error-state checks and enable hosted CI with appropriate credentials. The local v0.1 is operational; the full brief is not yet completed.
