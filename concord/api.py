@@ -205,5 +205,31 @@ def monitoring():
         )
 
 
+@app.get("/api/pairs/{ident}/impact")
+def impact(ident: str):
+    with store.connect() as c:
+        row = c.execute("SELECT payload FROM pairs WHERE id=?", (ident,)).fetchone()
+        if not row:
+            raise HTTPException(404, "Proposal not found")
+        p = json.loads(row[0])
+        groups, rs = store.components(c)
+        affected = sorted(
+            {k for g in groups if p["left"] in g or p["right"] in g for k in g}
+        )
+        return dict(
+            members=[
+                dict(
+                    id=k,
+                    name=rs[k]["name"],
+                    address=rs[k]["address"],
+                    version=rs[k]["version"],
+                )
+                for k in affected
+            ],
+            record_versions=p["versions"],
+            policy="Full group checked for cannot-link and location conflicts on confirmation",
+        )
+
+
 if Path("web/dist").exists():
     app.mount("/", StaticFiles(directory="web/dist", html=True), name="workbench")

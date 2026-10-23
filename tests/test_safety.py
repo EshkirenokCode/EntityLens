@@ -80,3 +80,25 @@ def test_retrieval_without_coordinates():
     a = dict(id="a", name="Unusual Cafe", address="", lat=None, lon=None, phone="")
     b = dict(a, id="b")
     assert len(list(candidates([a], [b]))) == 1
+
+
+def test_different_street_numbers_block_merge(db):
+    with store.connect() as c:
+        r = dict(db[1], address="12 Main St")
+        c.execute("UPDATE records SET payload=? WHERE id=?", (json.dumps(r), "B"))
+    with pytest.raises(ValueError, match="street numbers"):
+        store.decide(
+            "AB", "SAME", "Same chain phone is insufficient", 1, "branch-guard-key"
+        )
+
+
+def test_shared_address_does_not_force_match(db):
+    store.decide(
+        "AB",
+        "DIFFERENT",
+        "Distinct businesses in same building",
+        1,
+        "shared-address-key",
+    )
+    with store.connect() as c:
+        assert all(len(g) == 1 for g in store.components(c)[0])

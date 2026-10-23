@@ -81,7 +81,8 @@ function App() {
     [history, H] = useState<any[]>([]),
     [evaluation, EV] = useState<any>({}),
     [sources, SO] = useState<any[]>([]),
-    [jobs, J] = useState<any[]>([]);
+    [jobs, J] = useState<any[]>([]),
+    [impact, IM] = useState<any>(null);
   const refresh = useCallback(async () => {
     L(true);
     try {
@@ -113,6 +114,19 @@ function App() {
     refresh();
   }, [refresh]);
   const p = pairs[selected];
+  useEffect(() => {
+    let current = true;
+    IM(null);
+    if (p)
+      api(`pairs/${p.id}/impact`)
+        .then((v) => {
+          if (current) IM(v);
+        })
+        .catch(() => {});
+    return () => {
+      current = false;
+    };
+  }, [p?.id, p?.revision]);
   async function decide(kind: string) {
     if (!p || busy) return;
     if (!note.trim()) {
@@ -431,6 +445,19 @@ function App() {
                           value={note}
                           onChange={(e) => N(e.target.value)}
                         />
+                        <details className="impactpreview">
+                          <summary>
+                            Group impact ·{" "}
+                            {impact ? impact.members.length : "…"} source
+                            records
+                          </summary>
+                          {impact?.members.map((r: any) => (
+                            <p key={r.id}>
+                              {r.name} · {r.address}
+                              <small>{r.id}</small>
+                            </p>
+                          ))}
+                        </details>
                         <div className="impact">
                           <GitMerge size={14} />
                           Same place joins the full connected group after

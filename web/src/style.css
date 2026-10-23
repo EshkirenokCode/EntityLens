@@ -1050,3 +1050,22 @@ footer > span:last-child {
     flex-wrap: wrap;
   }
 }
+.impactpreview {
+  font-size: 10px;
+  color: #768d69;
+  padding: 12px 0;
+  line-height: 1.8;
+}
+.impactpreview summary {
+  cursor: pointer;
+}
+.impactpreview p {
+  padding: 8px;
+  background: #f3f6ed;
+  border-radius: 4px;
+}
+.impactpreview small {
+  font-family: monospace;
+  font-size: 8px;
+  color: #9baa8f;
+}

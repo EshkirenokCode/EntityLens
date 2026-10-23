@@ -232,3 +232,22 @@ from concord.inference import score_pairs
 
 score_pairs(pairs, rs, bundle)
 (ROOT / "data/processed/pairs.json").write_text(json.dumps(pairs))
+# Persist keyed prediction/error samples without redistributing source contact data.
+test_scores = model.predict_proba(matrix(by["test"], best))[:, 1]
+output = [
+    dict(
+        pair=r["pair"],
+        label=r["label"],
+        score=float(s),
+        prediction=int(s >= threshold),
+        provenance="silver",
+        split="test",
+    )
+    for r, s in zip(by["test"], test_scores)
+]
+(ROOT / "reports/predictions.jsonl").write_text(
+    "".join(json.dumps(row) + "\n" for row in output)
+)
+(ROOT / "reports/errors.json").write_text(
+    json.dumps([row for row in output if row["label"] != row["prediction"]], indent=2)
+)

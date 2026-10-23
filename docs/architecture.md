@@ -14,7 +14,7 @@ The analyst imports immutable snapshots, inspects candidate pairs, records evide
 
 ## Components
 
-Python modular monolith with FastAPI and shared offline/online features. SQLAlchemy persistence; SQLite supports a portable local launch, PostgreSQL is the Compose target. A single leased database worker performs bounded matching jobs. React/TypeScript workbench consumes the API. Training runs outside HTTP requests. Model artifacts are trusted local build outputs only.
+Python modular monolith with FastAPI and shared offline/online features. SQLite WAL persistence implements the current local profile. PostgreSQL/PostGIS and SQLAlchemy migrations remain planned; Compose uses the implemented SQLite backend. A single leased database worker performs bounded matching jobs. React/TypeScript workbench consumes the API. Training runs outside HTTP requests. Model artifacts are trusted local build outputs only.
 
 Raw snapshots are immutable, excluded from Git, and described by hashes, acquisition timestamps, bounding boxes and source metadata. Normalized records preserve raw source fields and immutable versions. Sorted record IDs define unordered pairs. Proposals bind record versions, feature schema, model and policy. Review runs in a transaction with optimistic stale checks. Canonical fields retain selection rules and all member values.
 
