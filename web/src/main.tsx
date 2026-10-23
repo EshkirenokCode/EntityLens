@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Layers,
@@ -70,6 +70,7 @@ function App() {
     [pairs, P] = useState<Pair[]>([]),
     [selected, I] = useState(0),
     [q, Q] = useState(""),
+    [search, DS] = useState(""),
     [total, T] = useState(0),
     [offset, O] = useState(0),
     [error, E] = useState(""),
@@ -83,20 +84,47 @@ function App() {
     [sources, SO] = useState<any[]>([]),
     [jobs, J] = useState<any[]>([]),
     [impact, IM] = useState<any>(null);
+  useEffect(() => {
+    const t = setTimeout(() => DS(q), 200);
+    return () => clearTimeout(t);
+  }, [q]);
+  useEffect(() => {
+    if (page !== "Sources & Runs") return;
+    let current = true;
+    const t = setInterval(
+      () =>
+        api("jobs")
+          .then((v) => {
+            if (current) J(v);
+          })
+          .catch((e) => {
+            if (current) E(String(e));
+          }),
+      2000,
+    );
+    return () => {
+      current = false;
+      clearInterval(t);
+    };
+  }, [page]);
+  const requestId = useRef(0);
   const refresh = useCallback(async () => {
+    const request = ++requestId.current;
     L(true);
     try {
       const [s, p, e, h, v, src, j] = await Promise.all([
         api("status"),
-        api(`pairs?q=${encodeURIComponent(q)}&offset=${offset}`),
+        api(`pairs?q=${encodeURIComponent(search)}&offset=${offset}`),
         api("entities"),
         api("history"),
         api("evaluation"),
         api("sources"),
         api("jobs"),
       ]);
+      if (request !== requestId.current) return;
       S(s);
       P(p.items);
+      I((i) => Math.min(Math.max(i, 0), Math.max(0, p.items.length - 1)));
       T(p.total);
       EN(e);
       H(h);
@@ -105,15 +133,18 @@ function App() {
       J(j);
       E("");
     } catch (e) {
-      E(String(e));
+      if (request === requestId.current) E(String(e));
     } finally {
-      L(false);
+      if (request === requestId.current) L(false);
     }
-  }, [q, offset]);
+  }, [search, offset]);
   useEffect(() => {
     refresh();
   }, [refresh]);
   const p = pairs[selected];
+  useEffect(() => {
+    N("");
+  }, [p?.id]);
   useEffect(() => {
     let current = true;
     IM(null);
@@ -154,7 +185,8 @@ function App() {
     function key(e: KeyboardEvent) {
       if (["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName))
         return;
-      if (e.key === "j") I((i) => Math.min(i + 1, pairs.length - 1));
+      if (e.key === "j" && pairs.length)
+        I((i) => Math.min(i + 1, pairs.length - 1));
       if (e.key === "k") I((i) => Math.max(i - 1, 0));
     }
     window.addEventListener("keydown", key);
@@ -184,6 +216,8 @@ function App() {
             ["Evaluation", ChartNoAxesCombined],
           ].map(([name, Icon]: any) => (
             <button
+              aria-label={name}
+              aria-current={page === name ? "page" : undefined}
               className={page === name ? "active" : ""}
               key={name}
               onClick={() => setPage(name)}
@@ -219,12 +253,10 @@ function App() {
           <div className="title">
             <div>
               <div className="eyebrow">ENTITY RESOLUTION / NYC</div>
-              <h1>
-                {page === "Review" ? "A clearer view of every place." : page}
-              </h1>
+              <h1>{page === "Review" ? "Resolve places" : page}</h1>
               <p>
                 {page === "Review"
-                  ? "Compare the evidence. Resolve ambiguity. Keep every source."
+                  ? "Compare independent records and record a traceable decision."
                   : page === "Evaluation"
                     ? "Measured results, reproducible runs, explicit limitations."
                     : page === "Entities"
@@ -318,6 +350,7 @@ function App() {
                     pairs.map((x, i) => (
                       <button
                         key={x.id}
+                        aria-pressed={i === selected}
                         className={"pair " + (i === selected ? "chosen" : "")}
                         onClick={() => {
                           I(i);
@@ -334,8 +367,8 @@ function App() {
                           </small>
                         </div>
                         <b>
-                          {(x.score * 100).toFixed(0)}
-                          <small>similarity</small>
+                          {x.score.toFixed(3)}
+                          <small>model score</small>
                         </b>
                         <em
                           className={x.status === "REVIEW" ? "tag" : "tag done"}
@@ -356,7 +389,7 @@ function App() {
                       Previous
                     </button>
                     <span>
-                      {offset + 1}–{Math.min(offset + 40, total)}
+                      {total ? offset + 1 : 0}–{Math.min(offset + 40, total)}
                     </span>
                     <button
                       disabled={offset + 40 >= total}
@@ -465,7 +498,7 @@ function App() {
                         </div>
                         <div className="actions">
                           <button
-                            disabled={busy || p.status !== "REVIEW"}
+                            disabled={busy || loading || p.status !== "REVIEW"}
                             className="primary"
                             onClick={() => decide("SAME")}
                           >
@@ -473,7 +506,7 @@ function App() {
                             Same place
                           </button>
                           <button
-                            disabled={busy || p.status !== "REVIEW"}
+                            disabled={busy || loading || p.status !== "REVIEW"}
                             className="secondary"
                             onClick={() => decide("DIFFERENT")}
                           >
@@ -481,7 +514,7 @@ function App() {
                             Different places
                           </button>
                           <button
-                            disabled={busy || p.status !== "REVIEW"}
+                            disabled={busy || loading || p.status !== "REVIEW"}
                             className="secondary"
                             onClick={() => decide("UNCERTAIN")}
                           >
@@ -527,7 +560,7 @@ function App() {
                   </ul>
                   <div className="callout">
                     <Activity size={18} />
-                    <strong>Keep uncertainty visible.</strong>
+                    <strong>Insufficient evidence?</strong>
                     <p>
                       Choose Unsure when the sources cannot establish identity.
                     </p>
@@ -598,8 +631,12 @@ function App() {
                       <button
                         className="secondary"
                         onClick={async () => {
-                          await api(`jobs/${j.id}/cancel`, {});
-                          await refresh();
+                          try {
+                            await api(`jobs/${j.id}/cancel`, {});
+                            await refresh();
+                          } catch (e) {
+                            E(String(e));
+                          }
                         }}
                       >
                         Cancel
@@ -609,8 +646,12 @@ function App() {
                       <button
                         className="secondary"
                         onClick={async () => {
-                          await api(`jobs/${j.id}/retry`, {});
-                          await refresh();
+                          try {
+                            await api(`jobs/${j.id}/retry`, {});
+                            await refresh();
+                          } catch (e) {
+                            E(String(e));
+                          }
                         }}
                       >
                         Retry
@@ -741,7 +782,7 @@ function App() {
             </>
           )}
           <footer>
-            Concord <span>Traceable decisions. Preserved evidence.</span>
+            Concord <span>Entity resolution workspace</span>
             <span>NYC DOHMH · Overture Maps Foundation</span>
           </footer>
         </div>

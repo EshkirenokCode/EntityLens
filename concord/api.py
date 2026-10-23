@@ -40,23 +40,29 @@ def pairs(
     state: str = "",
 ):
     with store.connect() as c:
-        rs = {r["id"]: r for r in store.rows(c, "records")}
-        out = []
-        for row in c.execute("SELECT * FROM pairs"):
-            p = json.loads(row["payload"])
-            if state and p["status"] != state:
-                continue
-            if (
-                q
-                and q.casefold()
-                not in (rs[p["left"]]["name"] + " " + rs[p["right"]]["name"]).casefold()
-            ):
-                continue
-            out.append(
-                dict(**p, revision=row["revision"], a=rs[p["left"]], b=rs[p["right"]])
-            )
-        out.sort(key=lambda p: (-p["score"], p["id"]))
-        return dict(total=len(out), items=out[offset : offset + limit])
+        where = "WHERE (?='' OR json_extract(p.payload,'$.status')=?) AND (?='' OR instr(lower(json_extract(a.payload,'$.name') || ' ' || json_extract(b.payload,'$.name')),lower(?))>0)"
+        join = " FROM pairs p JOIN records a ON a.id=json_extract(p.payload,'$.left') JOIN records b ON b.id=json_extract(p.payload,'$.right') "
+        params = (state, state, q, q)
+        total = c.execute("SELECT count(*)" + join + where, params).fetchone()[0]
+        result = c.execute(
+            "SELECT p.*,a.payload AS a,b.payload AS b"
+            + join
+            + where
+            + " ORDER BY json_extract(p.payload,'$.score') DESC,p.id LIMIT ? OFFSET ?",
+            params + (limit, offset),
+        )
+        return dict(
+            total=total,
+            items=[
+                dict(
+                    **json.loads(r["payload"]),
+                    revision=r["revision"],
+                    a=json.loads(r["a"]),
+                    b=json.loads(r["b"]),
+                )
+                for r in result
+            ],
+        )
 
 
 @app.post("/api/pairs/{ident}/decision")
@@ -136,6 +142,7 @@ def sources():
 @app.post("/api/jobs")
 def job():
     with store.connect() as c:
+        c.execute("BEGIN IMMEDIATE")
         row = c.execute(
             "SELECT id FROM jobs WHERE status IN ('queued','running')"
         ).fetchone()
@@ -161,6 +168,8 @@ def jobs():
 @app.post("/api/jobs/{ident}/cancel")
 def cancel_job(ident: str):
     with store.connect() as c:
+        if not c.execute("SELECT 1 FROM jobs WHERE id=?", (ident,)).fetchone():
+            raise HTTPException(404, "Job not found")
         c.execute(
             "UPDATE jobs SET status='cancelled',lease=NULL WHERE id=? AND status IN ('queued','running')",
             (ident,),
@@ -171,6 +180,13 @@ def cancel_job(ident: str):
 @app.post("/api/jobs/{ident}/retry")
 def retry_job(ident: str):
     with store.connect() as c:
+        c.execute("BEGIN IMMEDIATE")
+        if not c.execute("SELECT 1 FROM jobs WHERE id=?", (ident,)).fetchone():
+            raise HTTPException(404, "Job not found")
+        if c.execute(
+            "SELECT 1 FROM jobs WHERE status IN ('queued','running')"
+        ).fetchone():
+            raise HTTPException(409, "Another matching run is active")
         c.execute(
             "UPDATE jobs SET status='queued',attempts=0,error=NULL WHERE id=? AND status IN ('failed','cancelled')",
             (ident,),

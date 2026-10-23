@@ -1,15 +1,21 @@
 import os, json, sqlite3, uuid, time
 from pathlib import Path
+from contextlib import contextmanager
 
 DB = os.environ.get("CONCORD_DB", "concord.db")
 
 
+@contextmanager
 def connect():
     c = sqlite3.connect(DB, timeout=30)
     c.row_factory = sqlite3.Row
     c.execute("PRAGMA foreign_keys=ON")
     c.execute("PRAGMA journal_mode=WAL")
-    return c
+    try:
+        with c:
+            yield c
+    finally:
+        c.close()
 
 
 def init():
@@ -50,7 +56,12 @@ def components(c, excluding=None):
             x = parent[x]
         return x
 
-    pairs = {p["id"]: p for p in rows(c, "pairs")}
+    pairs = {
+        r["id"]: json.loads(r["payload"])
+        for r in c.execute(
+            "SELECT DISTINCT p.id,p.payload FROM pairs p JOIN decisions d ON d.pair_id=p.id WHERE d.undone=0"
+        )
+    }
     ds = list(c.execute("SELECT * FROM decisions WHERE undone=0 ORDER BY created,id"))
     cannot = []
     for d in ds:
@@ -112,14 +123,13 @@ def decide(pair_id, kind, rationale, revision, key):
         )
         groups, _ = components(c)
         if kind == "SAME":
-            from concord.features import features, distance
+            from concord.features import distance
 
             for group in groups:
                 if p["left"] not in group:
                     continue
                 for i, a in enumerate(group):
                     for b in group[i + 1 :]:
-                        f = features(rs[a], rs[b])
                         d = distance(rs[a], rs[b])
                         import re
 

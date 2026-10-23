@@ -48,3 +48,7 @@ GitHub Actions is supplied as [a workflow template](docs/ci.yml.template): the a
 [Architecture](docs/architecture.md) · [Identity policy](docs/identity-policy.md) · [Labeling](docs/labeling-guide.md) · [Data sources](DATA_SOURCES.md) · [Data card](docs/data-card.md) · [Model card](docs/model-card.md) · [Evaluation](docs/evaluation.md) · [Operations](docs/operations.md) · [Demo script](docs/demo-script.md) · [Progress](PROGRESS.md)
 
 Data attribution: NYC Department of Health and Mental Hygiene; Overture Maps Foundation and suppliers listed in source records. See DATA_SOURCES.md for links and source-specific terms.
+
+## Walkthrough and design
+
+[Testing guide and five use cases](docs/testing-guide.md) · [Design research](docs/design-research.md) · [Polish audit](docs/polish-audit.md)

@@ -28,3 +28,12 @@
 ## Continue from here
 
 Do not retrain/tune from the current holdout and call it a new sealed test. First adjudicate real entity groups and independent labels, including branches, shared premises, renamed businesses and missed candidates. Then finish PostgreSQL migration, stable entity identity and public-demo isolation, run full UI/error-state checks and enable hosted CI with appropriate credentials. The local v0.1 is operational; the full brief is not yet completed.
+
+## Polish and audit — 2026-10-24
+
+- Researched Dribbble reconciliation interfaces, Mobbin dashboard hierarchy, Linear design refresh and Refero reference availability; rationale saved in docs/design-research.md.
+- Replaced decorative styling with a compact, neutral analyst workbench; removed network fonts, strengthened text hierarchy, clarified model scores and coordinate schematic.
+- Fixed connection lifetime, search ordering, note carryover, empty navigation, stale actions during refresh, pagination performance and job lifecycle errors; added live run polling.
+- Added HTTP integration coverage: 16 tests now pass. Two additional verification passes and production builds passed. One dependency deprecation warning is documented.
+- Local warm pair-page median approximately 143ms for 40 records. No new model-quality claim.
+- Full test walkthrough, five use cases and portfolio boundaries: docs/testing-guide.md. Findings and pass results: docs/polish-audit.md.
