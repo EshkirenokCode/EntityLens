@@ -1,0 +1,153 @@
+{
+  "status": "Silver geographic holdout",
+  "label_provenance": "Heuristic silver labels; no independent human gold",
+  "gold_available": false,
+  "models": {
+    "lexical / spatial": {
+      "n": 3696,
+      "positive": 347,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "pr_auc": 1.0,
+      "brier": 2.214976600832599e-07,
+      "confusion": [
+        [
+          3349,
+          0
+        ],
+        [
+          0,
+          347
+        ]
+      ],
+      "threshold": 0.3,
+      "auto_link_coverage": 0,
+      "review_share": 1
+    },
+    "lexical + SVD": {
+      "n": 3696,
+      "positive": 347,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "pr_auc": 1.0,
+      "brier": 2.214976600832599e-07,
+      "confusion": [
+        [
+          3349,
+          0
+        ],
+        [
+          0,
+          347
+        ]
+      ],
+      "threshold": 0.3,
+      "auto_link_coverage": 0,
+      "review_share": 1
+    },
+    "rule baseline": {
+      "n": 3696,
+      "positive": 347,
+      "precision": 0.9971264367816092,
+      "recall": 1.0,
+      "f1": 0.9985611510791367,
+      "pr_auc": 1.0,
+      "brier": 0.1263069211305782,
+      "confusion": [
+        [
+          3348,
+          1
+        ],
+        [
+          0,
+          347
+        ]
+      ],
+      "threshold": 0.5,
+      "auto_link_coverage": 0,
+      "review_share": 1
+    }
+  },
+  "validation": {
+    "lexical / spatial": {
+      "n": 2522,
+      "positive": 290,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "pr_auc": 1.0,
+      "brier": 2.680704716157088e-07,
+      "confusion": [
+        [
+          2232,
+          0
+        ],
+        [
+          0,
+          290
+        ]
+      ],
+      "threshold": 0.3,
+      "auto_link_coverage": 0,
+      "review_share": 1
+    },
+    "lexical + SVD": {
+      "n": 2522,
+      "positive": 290,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "pr_auc": 1.0,
+      "brier": 2.680704716157088e-07,
+      "confusion": [
+        [
+          2232,
+          0
+        ],
+        [
+          0,
+          290
+        ]
+      ],
+      "threshold": 0.3,
+      "auto_link_coverage": 0,
+      "review_share": 1
+    }
+  },
+  "selected": "lexical / spatial",
+  "selection": "validation F1 only; test read after locking configuration",
+  "manifest_hash": "407fd2fddbb9c30fc30cf4ea74ad3bc4b4fed322c7782745eeeee281e8dbb379",
+  "split_counts": {
+    "train": {
+      "pairs": 4910,
+      "positive": 357
+    },
+    "validation": {
+      "pairs": 2522,
+      "positive": 290
+    },
+    "test": {
+      "pairs": 3696,
+      "positive": 347
+    }
+  },
+  "training_seconds": 0.6431021690368652,
+  "hardware": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "cpu": "arm",
+    "cores": 14
+  },
+  "code_revision": "d421aafa332b6b87893ed27615ac414b7d708bb0",
+  "policy": "review-only",
+  "candidate_recall": null,
+  "cluster_metrics": null,
+  "neural_finetuning": "Deferred: no independently verified real labels",
+  "limitations": [
+    "Geographic partition guarantees record disjointness, not independently verified entity disjointness.",
+    "Cross-boundary duplicates and chains may remain; independent adjudication required.",
+    "Label features overlap model features: metrics are heuristic agreement, not independent accuracy.",
+    "SVD is a train-only lexical embedding, not a pretrained multilingual neural encoder."
+  ]
+}

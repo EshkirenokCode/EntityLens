@@ -1,0 +1,2402 @@
+[
+  {
+    "pair": "baab1d6f75ef5d53e8fc",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50016488",
+      "overture:d9399092-dceb-4ca1-8003-2c22142afbd7"
+    ],
+    "record_versions": [
+      "d78bf007688c37d1",
+      "1c3e058464aa57ad"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50016488",
+        "version": "d78bf007688c37d1"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:d9399092-dceb-4ca1-8003-2c22142afbd7",
+        "version": "1c3e058464aa57ad"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "629614537b840c4903ab",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:40732665",
+      "overture:abd44753-8c2f-4eb4-9c36-ca0f9b27a7af"
+    ],
+    "record_versions": [
+      "e624ee2bc13b53b4",
+      "ec182dcfe3714542"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:40732665",
+        "version": "e624ee2bc13b53b4"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:abd44753-8c2f-4eb4-9c36-ca0f9b27a7af",
+        "version": "ec182dcfe3714542"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "bf089d2dbbd5c438a90c",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50128675",
+      "overture:d485ad1c-93a2-49b5-87d5-bdc60a6ef12a"
+    ],
+    "record_versions": [
+      "3f8afe06eaf7e8cd",
+      "27a8a2ea68fa355d"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50128675",
+        "version": "3f8afe06eaf7e8cd"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:d485ad1c-93a2-49b5-87d5-bdc60a6ef12a",
+        "version": "27a8a2ea68fa355d"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "d108d7eabdc26e3fefb3",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50118016",
+      "overture:2a20a4e3-2386-4af9-b142-be441a11c61f"
+    ],
+    "record_versions": [
+      "75aa0dd69d52f38b",
+      "a336b23ed9773ce6"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50118016",
+        "version": "75aa0dd69d52f38b"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:2a20a4e3-2386-4af9-b142-be441a11c61f",
+        "version": "a336b23ed9773ce6"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "2f7e9b3fa05c0d1ceb6e",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50108490",
+      "overture:1e385a19-4cb0-477b-a0ec-8bebf3d730c1"
+    ],
+    "record_versions": [
+      "ef10c750e74eea71",
+      "3546ec71c20488bd"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50108490",
+        "version": "ef10c750e74eea71"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:1e385a19-4cb0-477b-a0ec-8bebf3d730c1",
+        "version": "3546ec71c20488bd"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "1cf7b1acc65a5e035786",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50055011",
+      "overture:927882f9-4a3c-4a3a-8278-b513e4a56747"
+    ],
+    "record_versions": [
+      "81f0e9cc565b9b8f",
+      "0be90eaf9eb8ee0e"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50055011",
+        "version": "81f0e9cc565b9b8f"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:927882f9-4a3c-4a3a-8278-b513e4a56747",
+        "version": "0be90eaf9eb8ee0e"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "17d7dda7f1a53ae6d4a0",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50006275",
+      "overture:0588df1a-cf29-409b-a8f7-561fcc98da30"
+    ],
+    "record_versions": [
+      "9f12a9623773bf55",
+      "4ed2f9170d6f322e"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50006275",
+        "version": "9f12a9623773bf55"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:0588df1a-cf29-409b-a8f7-561fcc98da30",
+        "version": "4ed2f9170d6f322e"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "4e15f71b056e2de2ab8d",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:41689872",
+      "overture:cbe355d7-c084-4d4b-b4b6-5f502ff8ce3e"
+    ],
+    "record_versions": [
+      "7cc5c2d8ddf8756e",
+      "e67ee9ead79ad810"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:41689872",
+        "version": "7cc5c2d8ddf8756e"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:cbe355d7-c084-4d4b-b4b6-5f502ff8ce3e",
+        "version": "e67ee9ead79ad810"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "98f19910a7ba515cdeff",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50173920",
+      "overture:c2f19a7f-dad2-4840-b7d2-a5d3ee438a69"
+    ],
+    "record_versions": [
+      "c262638dff2f0a42",
+      "f70f72800f2250cb"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50173920",
+        "version": "c262638dff2f0a42"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:c2f19a7f-dad2-4840-b7d2-a5d3ee438a69",
+        "version": "f70f72800f2250cb"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "824f7d1b6fe588ad2c49",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:40971149",
+      "overture:0f180736-9508-4df3-8069-600736d7799c"
+    ],
+    "record_versions": [
+      "8976925d8826206d",
+      "9ac483b238f1ad1d"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:40971149",
+        "version": "8976925d8826206d"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:0f180736-9508-4df3-8069-600736d7799c",
+        "version": "9ac483b238f1ad1d"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "bc8dfd3bba98d5e927b7",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:40908961",
+      "overture:a8125d42-4185-4a1b-b135-f75dd48b39db"
+    ],
+    "record_versions": [
+      "9fdbad2b4ae66e2f",
+      "59f584ce3ddcfc9d"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:40908961",
+        "version": "9fdbad2b4ae66e2f"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:a8125d42-4185-4a1b-b135-f75dd48b39db",
+        "version": "59f584ce3ddcfc9d"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "17830477fdf317ee20ca",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50000795",
+      "overture:fa02f3c7-c975-46ca-b62a-0b3e6bf1e074"
+    ],
+    "record_versions": [
+      "3351377d9ab37aa2",
+      "08c55f0329c40593"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50000795",
+        "version": "3351377d9ab37aa2"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:fa02f3c7-c975-46ca-b62a-0b3e6bf1e074",
+        "version": "08c55f0329c40593"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "f2b3a5e167e01b90b874",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50106422",
+      "overture:02d05e0d-0f6e-4f6d-b364-d4864e6d648a"
+    ],
+    "record_versions": [
+      "d8040961f815d472",
+      "a90c30b8da0594d3"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50106422",
+        "version": "d8040961f815d472"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:02d05e0d-0f6e-4f6d-b364-d4864e6d648a",
+        "version": "a90c30b8da0594d3"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "2b01a564b7c86a629f99",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50112925",
+      "overture:b9300ad2-10eb-4b5c-b8b7-9506057f087e"
+    ],
+    "record_versions": [
+      "b686cc008fbb32e4",
+      "8111b5c7d5209568"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50112925",
+        "version": "b686cc008fbb32e4"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:b9300ad2-10eb-4b5c-b8b7-9506057f087e",
+        "version": "8111b5c7d5209568"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "b67384b6c20fe160619b",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50192936",
+      "overture:2b0067aa-a233-42eb-89c2-26942eac4704"
+    ],
+    "record_versions": [
+      "aa7983cfa6aa3e6b",
+      "e99252d9961dbd76"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50192936",
+        "version": "aa7983cfa6aa3e6b"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:2b0067aa-a233-42eb-89c2-26942eac4704",
+        "version": "e99252d9961dbd76"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "b192c40840e665141ac2",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:40812973",
+      "overture:3298e47d-b752-4e67-8e69-1504de100ecc"
+    ],
+    "record_versions": [
+      "0af1fb80ded7dca8",
+      "48d6f035199aa48b"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:40812973",
+        "version": "0af1fb80ded7dca8"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:3298e47d-b752-4e67-8e69-1504de100ecc",
+        "version": "48d6f035199aa48b"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "77d16ed17333ec8466e8",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50098399",
+      "overture:5ae01d4e-1e99-4e61-8292-c6e3215818e4"
+    ],
+    "record_versions": [
+      "ca9e8ccdac63d62a",
+      "13d14299840e4363"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50098399",
+        "version": "ca9e8ccdac63d62a"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:5ae01d4e-1e99-4e61-8292-c6e3215818e4",
+        "version": "13d14299840e4363"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "1f5c1c06f98189d27714",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50173346",
+      "overture:96c1b90e-5000-44dc-af3e-f870b4c9c54d"
+    ],
+    "record_versions": [
+      "38a0c76b84d2c1d1",
+      "ef3d265947f9b9ef"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50173346",
+        "version": "38a0c76b84d2c1d1"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:96c1b90e-5000-44dc-af3e-f870b4c9c54d",
+        "version": "ef3d265947f9b9ef"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "069d93f333a9709bc534",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50107217",
+      "overture:85624e77-2aec-47f5-a448-39f0240a8cda"
+    ],
+    "record_versions": [
+      "a260d474c8882701",
+      "ba751f82d1e755f1"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50107217",
+        "version": "a260d474c8882701"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:85624e77-2aec-47f5-a448-39f0240a8cda",
+        "version": "ba751f82d1e755f1"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "d4854462f53d6b7c3321",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50179983",
+      "overture:1bc1406d-01fd-43d2-9573-2e19b2a4f307"
+    ],
+    "record_versions": [
+      "870a9ee16e865273",
+      "68a99f4a389a58e3"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50179983",
+        "version": "870a9ee16e865273"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:1bc1406d-01fd-43d2-9573-2e19b2a4f307",
+        "version": "68a99f4a389a58e3"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "76c817397c660ae397a9",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50130046",
+      "overture:dbe6103c-8551-45b0-a91e-d5a6b9c62776"
+    ],
+    "record_versions": [
+      "2abd32edc0699886",
+      "1eabc8bedee7e794"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50130046",
+        "version": "2abd32edc0699886"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:dbe6103c-8551-45b0-a91e-d5a6b9c62776",
+        "version": "1eabc8bedee7e794"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "55ae5fe350ff77fbc425",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:40388194",
+      "overture:f779a5ab-d72a-4750-8aea-fbf6d411635a"
+    ],
+    "record_versions": [
+      "c82c556b53941222",
+      "810f6a826a9ec062"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:40388194",
+        "version": "c82c556b53941222"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:f779a5ab-d72a-4750-8aea-fbf6d411635a",
+        "version": "810f6a826a9ec062"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "1fa7d73b7d036a9ff348",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50072002",
+      "overture:a790d9c3-65d1-499c-9c1b-b71c4274b225"
+    ],
+    "record_versions": [
+      "d107c93eaafe3ff0",
+      "48971cb1028645ab"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50072002",
+        "version": "d107c93eaafe3ff0"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:a790d9c3-65d1-499c-9c1b-b71c4274b225",
+        "version": "48971cb1028645ab"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "6d918dcf023b5e047b56",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50174014",
+      "overture:8658a630-2f89-4558-883e-135d3cb955f7"
+    ],
+    "record_versions": [
+      "3574d658f4765f49",
+      "97883fc9fa78f02b"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50174014",
+        "version": "3574d658f4765f49"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:8658a630-2f89-4558-883e-135d3cb955f7",
+        "version": "97883fc9fa78f02b"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "7e9794bb91257c3c04cb",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50150851",
+      "overture:4e0a891b-5259-4081-9444-3688a244abcc"
+    ],
+    "record_versions": [
+      "ce588fad048c7956",
+      "7ba2a4edb3175a4b"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50150851",
+        "version": "ce588fad048c7956"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:4e0a891b-5259-4081-9444-3688a244abcc",
+        "version": "7ba2a4edb3175a4b"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "9c12c1120b8ab6f8de00",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50130040",
+      "overture:dd54ef39-c151-474e-a9d3-2271233dd58b"
+    ],
+    "record_versions": [
+      "f35577c2bdb28d9c",
+      "f92b36912ea52ff4"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50130040",
+        "version": "f35577c2bdb28d9c"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:dd54ef39-c151-474e-a9d3-2271233dd58b",
+        "version": "f92b36912ea52ff4"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "5295c2832d69bb39c482",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50069127",
+      "overture:1ac8cd56-f52a-40ae-b95e-69a36e4852c2"
+    ],
+    "record_versions": [
+      "ce19fc001ba17499",
+      "b173890f80e55508"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50069127",
+        "version": "ce19fc001ba17499"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:1ac8cd56-f52a-40ae-b95e-69a36e4852c2",
+        "version": "b173890f80e55508"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "f81d7ed2e14fcb6a22e4",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50105802",
+      "overture:871d4394-c8ea-4324-ba7c-be7f8c693884"
+    ],
+    "record_versions": [
+      "42c5743d8edaee58",
+      "94acbdea911003e2"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50105802",
+        "version": "42c5743d8edaee58"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:871d4394-c8ea-4324-ba7c-be7f8c693884",
+        "version": "94acbdea911003e2"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "f62b518a1b1840e60b7f",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50149605",
+      "overture:1113a3f9-4d6e-47a4-b93c-e18848714fcc"
+    ],
+    "record_versions": [
+      "64c91d4bc627d009",
+      "01e4cb159774285d"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50149605",
+        "version": "64c91d4bc627d009"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:1113a3f9-4d6e-47a4-b93c-e18848714fcc",
+        "version": "01e4cb159774285d"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "6ae21f43596a95172507",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50005809",
+      "overture:e17c3b28-3ede-4b6a-a45d-a362860d02b9"
+    ],
+    "record_versions": [
+      "b7bfc594611daea8",
+      "4fd0a367c7520197"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50005809",
+        "version": "b7bfc594611daea8"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:e17c3b28-3ede-4b6a-a45d-a362860d02b9",
+        "version": "4fd0a367c7520197"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "b1d227eb233a59037b31",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50000161",
+      "overture:a3cb1177-58f8-427c-819e-51ac2c6b81d9"
+    ],
+    "record_versions": [
+      "f00b729201413351",
+      "1e69f6b04983d172"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50000161",
+        "version": "f00b729201413351"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:a3cb1177-58f8-427c-819e-51ac2c6b81d9",
+        "version": "1e69f6b04983d172"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "239ddabd9962808094f1",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50163758",
+      "overture:376afca8-ae1f-4903-889b-a3bce3237e19"
+    ],
+    "record_versions": [
+      "1e6c62a23f26ee68",
+      "108e08511e32a731"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50163758",
+        "version": "1e6c62a23f26ee68"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:376afca8-ae1f-4903-889b-a3bce3237e19",
+        "version": "108e08511e32a731"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "d891bc4139fa7cc97193",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50002280",
+      "overture:39cf264f-056f-444e-afde-9442e8cf227d"
+    ],
+    "record_versions": [
+      "04ea8e9b4727c829",
+      "b73a65559248ae9b"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50002280",
+        "version": "04ea8e9b4727c829"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:39cf264f-056f-444e-afde-9442e8cf227d",
+        "version": "b73a65559248ae9b"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "8a4de113d2e209a060fe",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50158251",
+      "overture:b8a7d5c3-5a39-4cc2-ba83-713d7c0940eb"
+    ],
+    "record_versions": [
+      "fbf321d7b16fb7c2",
+      "149562e79d7b1919"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50158251",
+        "version": "fbf321d7b16fb7c2"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:b8a7d5c3-5a39-4cc2-ba83-713d7c0940eb",
+        "version": "149562e79d7b1919"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "1e75e3a2591c02655bac",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50152630",
+      "overture:4908938f-3d4d-437f-bede-31488fc78261"
+    ],
+    "record_versions": [
+      "1802e60b3065bd7d",
+      "ecf7f394615a6b15"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50152630",
+        "version": "1802e60b3065bd7d"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:4908938f-3d4d-437f-bede-31488fc78261",
+        "version": "ecf7f394615a6b15"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "21fa0c1b1e2835285f4d",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50124355",
+      "overture:a6dcfedb-2401-458e-b560-6bcc35c8bd5e"
+    ],
+    "record_versions": [
+      "72acd5f3bc1b05d2",
+      "934c7cfbebcd9243"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50124355",
+        "version": "72acd5f3bc1b05d2"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:a6dcfedb-2401-458e-b560-6bcc35c8bd5e",
+        "version": "934c7cfbebcd9243"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "7d5344765169f3633256",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:41185792",
+      "overture:c861fea0-1624-4372-83e5-ecc6127cbf98"
+    ],
+    "record_versions": [
+      "bf71b6a4cdbf7318",
+      "190e39e6aeba70ce"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:41185792",
+        "version": "bf71b6a4cdbf7318"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:c861fea0-1624-4372-83e5-ecc6127cbf98",
+        "version": "190e39e6aeba70ce"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "369dfc011ab9384dc88e",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50181942",
+      "overture:74c6b9a5-980d-455e-aa82-9d20bd97c2e5"
+    ],
+    "record_versions": [
+      "32148566c7e46634",
+      "1b0eee39425b4cd7"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50181942",
+        "version": "32148566c7e46634"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:74c6b9a5-980d-455e-aa82-9d20bd97c2e5",
+        "version": "1b0eee39425b4cd7"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "3a20c6a1c9ab54f09276",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50040555",
+      "overture:367aa248-ad3d-42b7-8dea-30c27e8e6c95"
+    ],
+    "record_versions": [
+      "216ff6a50d1753fe",
+      "ec1ee16cc6e4c4f0"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50040555",
+        "version": "216ff6a50d1753fe"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:367aa248-ad3d-42b7-8dea-30c27e8e6c95",
+        "version": "ec1ee16cc6e4c4f0"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "bd7c6b2fb5b484c29a75",
+    "stratum": "random",
+    "record_ids": [
+      "nyc:50163573",
+      "overture:0bc465cb-36ca-474f-b228-4a2a8b091d04"
+    ],
+    "record_versions": [
+      "2c5f14611e875f22",
+      "1e99dff1fa366400"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50163573",
+        "version": "2c5f14611e875f22"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:0bc465cb-36ca-474f-b228-4a2a8b091d04",
+        "version": "1e99dff1fa366400"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "c2dd5ea0bb1e69ba3944",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:40591269",
+      "overture:6d233ec8-cc06-40f6-9003-82adaced46c3"
+    ],
+    "record_versions": [
+      "24fbe5dba578d4f3",
+      "c96946efb80fef67"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:40591269",
+        "version": "24fbe5dba578d4f3"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:6d233ec8-cc06-40f6-9003-82adaced46c3",
+        "version": "c96946efb80fef67"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "4818a4a0b60517f2ae72",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:41366512",
+      "overture:6d233ec8-cc06-40f6-9003-82adaced46c3"
+    ],
+    "record_versions": [
+      "511e36f234cd3eb5",
+      "c96946efb80fef67"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:41366512",
+        "version": "511e36f234cd3eb5"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:6d233ec8-cc06-40f6-9003-82adaced46c3",
+        "version": "c96946efb80fef67"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "f3041020cedb7699af0f",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50084908",
+      "overture:7b78a2c6-ab20-40c1-9ad5-580eb01c7431"
+    ],
+    "record_versions": [
+      "03f83587f91f608c",
+      "be15d983f1d97104"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50084908",
+        "version": "03f83587f91f608c"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:7b78a2c6-ab20-40c1-9ad5-580eb01c7431",
+        "version": "be15d983f1d97104"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "2080b187ef3dad4e5975",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50113988",
+      "overture:81e7c4e9-6728-4ab7-881e-8fc0cea5e5e6"
+    ],
+    "record_versions": [
+      "3ed7920ede77dc2c",
+      "1c283895348e9284"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50113988",
+        "version": "3ed7920ede77dc2c"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:81e7c4e9-6728-4ab7-881e-8fc0cea5e5e6",
+        "version": "1c283895348e9284"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "e49d93dd4fbb890ccc74",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50076131",
+      "overture:7fe3b38c-fd81-4d59-9f90-3d2ff3909218"
+    ],
+    "record_versions": [
+      "f97305b9f54552f6",
+      "25197f5bacc218d2"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50076131",
+        "version": "f97305b9f54552f6"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:7fe3b38c-fd81-4d59-9f90-3d2ff3909218",
+        "version": "25197f5bacc218d2"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "218db77f1a6700ff7903",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50076131",
+      "overture:5c9490b8-0b87-492f-954f-5edcb6af3314"
+    ],
+    "record_versions": [
+      "f97305b9f54552f6",
+      "f2ad604381b6a9de"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50076131",
+        "version": "f97305b9f54552f6"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:5c9490b8-0b87-492f-954f-5edcb6af3314",
+        "version": "f2ad604381b6a9de"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "0577a3efceca561fe951",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:40591269",
+      "overture:3b61848e-16be-4b59-b563-aa084b5e6566"
+    ],
+    "record_versions": [
+      "24fbe5dba578d4f3",
+      "7b7ba5744d4e3794"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:40591269",
+        "version": "24fbe5dba578d4f3"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:3b61848e-16be-4b59-b563-aa084b5e6566",
+        "version": "7b7ba5744d4e3794"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "2fc1dcefa6cb0bd25c6e",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:41366512",
+      "overture:3b61848e-16be-4b59-b563-aa084b5e6566"
+    ],
+    "record_versions": [
+      "511e36f234cd3eb5",
+      "7b7ba5744d4e3794"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:41366512",
+        "version": "511e36f234cd3eb5"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:3b61848e-16be-4b59-b563-aa084b5e6566",
+        "version": "7b7ba5744d4e3794"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "05263f305a05819d8502",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:41394943",
+      "overture:6d233ec8-cc06-40f6-9003-82adaced46c3"
+    ],
+    "record_versions": [
+      "9d003bab43af7c19",
+      "c96946efb80fef67"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:41394943",
+        "version": "9d003bab43af7c19"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:6d233ec8-cc06-40f6-9003-82adaced46c3",
+        "version": "c96946efb80fef67"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "39302925f85d952b3a21",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50130551",
+      "overture:479dda43-fd57-4fd0-948c-149e753a09ce"
+    ],
+    "record_versions": [
+      "acaab02b2c4142f8",
+      "5a21b67b8be7daa3"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50130551",
+        "version": "acaab02b2c4142f8"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:479dda43-fd57-4fd0-948c-149e753a09ce",
+        "version": "5a21b67b8be7daa3"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "4045ca8b85ec00d97da0",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50130551",
+      "overture:14733e88-0495-4e6d-8a20-6d64c94e2d6c"
+    ],
+    "record_versions": [
+      "acaab02b2c4142f8",
+      "d3d991ee2102c1e5"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50130551",
+        "version": "acaab02b2c4142f8"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:14733e88-0495-4e6d-8a20-6d64c94e2d6c",
+        "version": "d3d991ee2102c1e5"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "6e7112c57e67e8b5a651",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:40512204",
+      "overture:6d233ec8-cc06-40f6-9003-82adaced46c3"
+    ],
+    "record_versions": [
+      "b1eaca8502589d81",
+      "c96946efb80fef67"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:40512204",
+        "version": "b1eaca8502589d81"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:6d233ec8-cc06-40f6-9003-82adaced46c3",
+        "version": "c96946efb80fef67"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "da460d70574268f9fffd",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50159307",
+      "overture:219c2822-0282-4bd1-88f9-1f562f95112e"
+    ],
+    "record_versions": [
+      "09117fc47e3bb8d7",
+      "73179fcf44ea34a3"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50159307",
+        "version": "09117fc47e3bb8d7"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:219c2822-0282-4bd1-88f9-1f562f95112e",
+        "version": "73179fcf44ea34a3"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "e0d0fc9646130a2277f3",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50130551",
+      "overture:abd01c1c-2bc8-42b1-9f55-a2ee2a0f60d8"
+    ],
+    "record_versions": [
+      "acaab02b2c4142f8",
+      "1ba2c01a3e21f72d"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50130551",
+        "version": "acaab02b2c4142f8"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:abd01c1c-2bc8-42b1-9f55-a2ee2a0f60d8",
+        "version": "1ba2c01a3e21f72d"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "72526b02a67a157d273a",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50105549",
+      "overture:ab42884d-1b20-4be6-8b78-d2cc1c79a98d"
+    ],
+    "record_versions": [
+      "2e83817e8764d84e",
+      "d9126fb65b37f464"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50105549",
+        "version": "2e83817e8764d84e"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:ab42884d-1b20-4be6-8b78-d2cc1c79a98d",
+        "version": "d9126fb65b37f464"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "8357273d5701c9354fe3",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:41678997",
+      "overture:81680a76-84b6-4ec3-8720-84f05eeb9df1"
+    ],
+    "record_versions": [
+      "b8f6073f5aac3266",
+      "82e9c113f4be3794"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:41678997",
+        "version": "b8f6073f5aac3266"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:81680a76-84b6-4ec3-8720-84f05eeb9df1",
+        "version": "82e9c113f4be3794"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "5986dc32f0e8948c5e17",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50125501",
+      "overture:6d233ec8-cc06-40f6-9003-82adaced46c3"
+    ],
+    "record_versions": [
+      "6b5d95e9a2f10003",
+      "c96946efb80fef67"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50125501",
+        "version": "6b5d95e9a2f10003"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:6d233ec8-cc06-40f6-9003-82adaced46c3",
+        "version": "c96946efb80fef67"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "521753b772ecaadd6566",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:40591269",
+      "overture:5e926b71-f884-481a-a892-2c2fb439ad10"
+    ],
+    "record_versions": [
+      "24fbe5dba578d4f3",
+      "24141d639f9b7558"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:40591269",
+        "version": "24fbe5dba578d4f3"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:5e926b71-f884-481a-a892-2c2fb439ad10",
+        "version": "24141d639f9b7558"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "5acee67163fc96ce7351",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50060154",
+      "overture:7fe3b38c-fd81-4d59-9f90-3d2ff3909218"
+    ],
+    "record_versions": [
+      "05508d3b567a5ba7",
+      "25197f5bacc218d2"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50060154",
+        "version": "05508d3b567a5ba7"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:7fe3b38c-fd81-4d59-9f90-3d2ff3909218",
+        "version": "25197f5bacc218d2"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "e8ddf1412dfacc61f367",
+    "stratum": "similar_names",
+    "record_ids": [
+      "nyc:50098726",
+      "overture:c62d3759-fbd5-4136-be6f-2b6152cc921b"
+    ],
+    "record_versions": [
+      "9ff1eb4362751b6a",
+      "f8d30726c229372b"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50098726",
+        "version": "9ff1eb4362751b6a"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:c62d3759-fbd5-4136-be6f-2b6152cc921b",
+        "version": "f8d30726c229372b"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "bed69e007a6254ce3130",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:41686709",
+      "overture:ab44a097-6058-4ae7-a437-9c1f41d4d43a"
+    ],
+    "record_versions": [
+      "e65b762eca75b5f8",
+      "22925f90f21f51ef"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:41686709",
+        "version": "e65b762eca75b5f8"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:ab44a097-6058-4ae7-a437-9c1f41d4d43a",
+        "version": "22925f90f21f51ef"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "b842e217c882ab0b44ba",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:41499185",
+      "overture:4dda3b8c-d8ac-4414-bdbe-ce20cf370e59"
+    ],
+    "record_versions": [
+      "14dcbf465f7fb14d",
+      "f7d3176bf9abd696"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:41499185",
+        "version": "14dcbf465f7fb14d"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:4dda3b8c-d8ac-4414-bdbe-ce20cf370e59",
+        "version": "f7d3176bf9abd696"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "78f680fdac5a2618f2d8",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50151859",
+      "overture:f90452cf-999a-485c-acdf-3b266f538a1c"
+    ],
+    "record_versions": [
+      "a2e6bf58f93df47c",
+      "af94370e29729317"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50151859",
+        "version": "a2e6bf58f93df47c"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:f90452cf-999a-485c-acdf-3b266f538a1c",
+        "version": "af94370e29729317"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "9895d8c034a361ac4d0e",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50177069",
+      "overture:8bcd7612-85d4-4393-8f99-35becc1fffcd"
+    ],
+    "record_versions": [
+      "615b2d9bd7e27437",
+      "8d2a8e602ee57b9f"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50177069",
+        "version": "615b2d9bd7e27437"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:8bcd7612-85d4-4393-8f99-35becc1fffcd",
+        "version": "8d2a8e602ee57b9f"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "eddc9b1c1cb50075eddf",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50118976",
+      "overture:a55b5b19-7764-4640-80a4-aa1dc1dedb69"
+    ],
+    "record_versions": [
+      "08be843dec7bd3d7",
+      "a391642cade648ff"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50118976",
+        "version": "08be843dec7bd3d7"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:a55b5b19-7764-4640-80a4-aa1dc1dedb69",
+        "version": "a391642cade648ff"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "80bae3607b13f4e249f6",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50076131",
+      "overture:70116961-21d0-4499-b3f9-f158b42f3029"
+    ],
+    "record_versions": [
+      "f97305b9f54552f6",
+      "13b98c74954a77c3"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50076131",
+        "version": "f97305b9f54552f6"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:70116961-21d0-4499-b3f9-f158b42f3029",
+        "version": "13b98c74954a77c3"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "9ec7a84c5a23958d1443",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50015395",
+      "overture:2a846e6e-3384-4a10-b3fb-f0d35ccd64bb"
+    ],
+    "record_versions": [
+      "b9702a66d10fcb85",
+      "04db62845a8e5825"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50015395",
+        "version": "b9702a66d10fcb85"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:2a846e6e-3384-4a10-b3fb-f0d35ccd64bb",
+        "version": "04db62845a8e5825"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "37937fa735ebe3b4c893",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50193932",
+      "overture:efe89348-eb2b-4afe-a0be-88fd4ba8c48f"
+    ],
+    "record_versions": [
+      "49ebcb56ab22c2ca",
+      "747a1a18113a63a6"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50193932",
+        "version": "49ebcb56ab22c2ca"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:efe89348-eb2b-4afe-a0be-88fd4ba8c48f",
+        "version": "747a1a18113a63a6"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "e63321989db49e442f4d",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50182605",
+      "overture:d97f3c8b-00d0-47e9-88df-89edf0c30153"
+    ],
+    "record_versions": [
+      "cd86d661d28b2100",
+      "3edd7187a8d4ca49"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50182605",
+        "version": "cd86d661d28b2100"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:d97f3c8b-00d0-47e9-88df-89edf0c30153",
+        "version": "3edd7187a8d4ca49"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "3636d366bed24ad068a4",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50069752",
+      "overture:b277db77-0ed2-4cbe-9867-df92b2e4b9d9"
+    ],
+    "record_versions": [
+      "44275c29b973a4ce",
+      "595113da81dd7d13"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50069752",
+        "version": "44275c29b973a4ce"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:b277db77-0ed2-4cbe-9867-df92b2e4b9d9",
+        "version": "595113da81dd7d13"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "a2986743fe99b1a70f97",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50071556",
+      "overture:84c4b617-8f76-4b8c-ba05-ac9ec4e00cf1"
+    ],
+    "record_versions": [
+      "e073fa0391db1871",
+      "3364333585048b28"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50071556",
+        "version": "e073fa0391db1871"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:84c4b617-8f76-4b8c-ba05-ac9ec4e00cf1",
+        "version": "3364333585048b28"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "2fafee4b8d9287c71b03",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50131384",
+      "overture:356d8de1-b85f-4b62-9499-6a7fb1f7a6ea"
+    ],
+    "record_versions": [
+      "8bf6e59749c675da",
+      "815c6320945d6733"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50131384",
+        "version": "8bf6e59749c675da"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:356d8de1-b85f-4b62-9499-6a7fb1f7a6ea",
+        "version": "815c6320945d6733"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "e35e3f1ead41ab054493",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50136749",
+      "overture:d6c548a6-107c-4509-9908-570bca8b24ab"
+    ],
+    "record_versions": [
+      "8ef1125d58f4267b",
+      "baf4b9e9d8daf33f"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50136749",
+        "version": "8ef1125d58f4267b"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:d6c548a6-107c-4509-9908-570bca8b24ab",
+        "version": "baf4b9e9d8daf33f"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "ec22509af9fc7c7d088e",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50166544",
+      "overture:01aca64c-b8e2-4fc9-b9dd-5162b86e2852"
+    ],
+    "record_versions": [
+      "877d233eead2c1ea",
+      "8276473a2562e1b9"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50166544",
+        "version": "877d233eead2c1ea"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:01aca64c-b8e2-4fc9-b9dd-5162b86e2852",
+        "version": "8276473a2562e1b9"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "4b3dcb89f0e14d9c53f6",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50180592",
+      "overture:d3333599-3678-4709-8c1f-09279cd2ce7f"
+    ],
+    "record_versions": [
+      "3992186fd9449f81",
+      "8b6b0471a3308965"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50180592",
+        "version": "3992186fd9449f81"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:d3333599-3678-4709-8c1f-09279cd2ce7f",
+        "version": "8b6b0471a3308965"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "52cacfb43c3d9caa84e4",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50160208",
+      "overture:fc50bf84-feaa-4f73-bab7-1d43bf5070a7"
+    ],
+    "record_versions": [
+      "7996307a671b048e",
+      "671c6478d47fc483"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50160208",
+        "version": "7996307a671b048e"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:fc50bf84-feaa-4f73-bab7-1d43bf5070a7",
+        "version": "671c6478d47fc483"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "860efc76b553e76adadd",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:40512258",
+      "overture:0b3dd0ec-ba57-452b-9740-4fa1adde2132"
+    ],
+    "record_versions": [
+      "2e3524c8d916b0cd",
+      "960eec814bf29053"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:40512258",
+        "version": "2e3524c8d916b0cd"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:0b3dd0ec-ba57-452b-9740-4fa1adde2132",
+        "version": "960eec814bf29053"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "a574c57affe9bcf67ad4",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50118072",
+      "overture:e23d4555-8c89-42e8-a27f-f4bec5309aaa"
+    ],
+    "record_versions": [
+      "1ac5b749f385b3af",
+      "1c875d8aa1f2a247"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50118072",
+        "version": "1ac5b749f385b3af"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:e23d4555-8c89-42e8-a27f-f4bec5309aaa",
+        "version": "1c875d8aa1f2a247"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "ed8bf86440188e9f48d7",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:50002280",
+      "overture:fc0e844e-d5d2-4625-a774-f4a7562007a7"
+    ],
+    "record_versions": [
+      "04ea8e9b4727c829",
+      "1459a8cfeafe1cfa"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:50002280",
+        "version": "04ea8e9b4727c829"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:fc0e844e-d5d2-4625-a774-f4a7562007a7",
+        "version": "1459a8cfeafe1cfa"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  },
+  {
+    "pair": "5b912e15058eb1547852",
+    "stratum": "ambiguous",
+    "record_ids": [
+      "nyc:41499185",
+      "overture:21116821-3d46-443f-be75-0ac37e65b80e"
+    ],
+    "record_versions": [
+      "14dcbf465f7fb14d",
+      "7fa3cb6bba4fb79b"
+    ],
+    "source_refs": [
+      {
+        "source": "nyc",
+        "source_id": "nyc:41499185",
+        "version": "14dcbf465f7fb14d"
+      },
+      {
+        "source": "overture",
+        "source_id": "overture:21116821-3d46-443f-be75-0ac37e65b80e",
+        "version": "7fa3cb6bba4fb79b"
+      }
+    ],
+    "label": null,
+    "rationale": null,
+    "evidence_urls": [],
+    "reviewer": null,
+    "provenance": "unlabeled",
+    "independently_verified": false
+  }
+]
