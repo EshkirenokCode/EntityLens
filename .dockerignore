@@ -1,0 +1,9 @@
+.git
+.venv
+node_modules
+web/node_modules
+web/dist
+data/raw
+data/processed
+artifacts
+*.db*

@@ -1,0 +1,24 @@
+services:
+  api:
+    build: .
+    ports: ["127.0.0.1:8765:8765"]
+    environment:
+      CONCORD_DB: /state/concord.db
+    volumes:
+      - state:/state
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts:ro
+    restart: unless-stopped
+  worker:
+    build: .
+    command: ["python", "-m", "concord.worker"]
+    environment:
+      CONCORD_DB: /state/concord.db
+      OMP_NUM_THREADS: "2"
+    volumes:
+      - state:/state
+      - ./data:/app/data:ro
+      - ./artifacts:/app/artifacts:ro
+    restart: unless-stopped
+volumes:
+  state:
