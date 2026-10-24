@@ -13,10 +13,10 @@ make setup
 make data
 make train
 make web
-make run
+make dev
 ```
 
-Open http://127.0.0.1:8765 . In another terminal, run `make worker` for queued matching jobs. Interactive API documentation is at `/docs`. `make test` runs safety checks and the production frontend build.
+Open http://127.0.0.1:8765 . `make dev` starts the API and durable worker together, using the same database; Ctrl+C stops both. For separate terminals, use `make run` and `make worker` with the same CONCORD_DB. The default local database is `concord-v1.db` in the project directory. Interactive API documentation is at `/docs`. `make test` runs safety checks and the production frontend build.
 
 Raw catalogs and model binaries are generated locally and excluded from Git. Preserve the manifest-addressed snapshots to reproduce an exact experiment; the municipal endpoint updates over time. `make data` downloads a bounded area, not the global catalog. Downloading can take several minutes. `docker compose up --build` is an alternative launch after data preparation and training; Docker execution remains unverified in the development environment.
 

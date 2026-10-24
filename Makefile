@@ -1,4 +1,4 @@
-.PHONY: setup data train web run worker test
+.PHONY: setup data train web run worker test dev
 setup:
 	python3.12 -m venv .venv
 	.venv/bin/pip install -r requirements.txt
@@ -17,3 +17,5 @@ worker:
 test:
 	.venv/bin/python -m pytest -q
 	cd web && npm run build
+dev:
+	.venv/bin/python scripts/dev.py

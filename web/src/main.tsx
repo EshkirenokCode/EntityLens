@@ -22,8 +22,8 @@ type RecordRow = {
   name: string;
   address: string;
   source: string;
-  lat: number;
-  lon: number;
+  lat: number | null;
+  lon: number | null;
   phone: string;
   version: string;
 };
@@ -36,6 +36,7 @@ type Pair = {
   baseline: number;
   status: string;
   revision: number;
+  source_stale: boolean;
 };
 async function api(path: string, body?: unknown) {
   const r = await fetch(
@@ -48,11 +49,36 @@ async function api(path: string, body?: unknown) {
         }
       : undefined,
   );
-  const d = await r.json();
-  if (!r.ok) throw Error(d.detail || "Request failed");
+  let d;
+  try {
+    d = await r.json();
+  } catch {
+    throw Error(`Service returned an invalid response (HTTP ${r.status}).`);
+  }
+  if (!r.ok)
+    throw Error(
+      Array.isArray(d.detail)
+        ? d.detail
+            .map((v: any) => `${v.loc?.slice(1).join(".")}: ${v.msg}`)
+            .join("; ")
+        : d.detail || `Request failed (HTTP ${r.status})`,
+    );
   return d;
 }
+function hasCoordinates(
+  r: RecordRow,
+): r is RecordRow & { lat: number; lon: number } {
+  return (
+    typeof r.lat === "number" &&
+    typeof r.lon === "number" &&
+    Number.isFinite(r.lat) &&
+    Number.isFinite(r.lon) &&
+    Math.abs(r.lat) <= 90 &&
+    Math.abs(r.lon) <= 180
+  );
+}
 function pinStyle(a: RecordRow, b: RecordRow) {
+  if (!hasCoordinates(a) || !hasCoordinates(b)) return undefined;
   const span = Math.max(
     Math.abs(a.lon - b.lon),
     Math.abs(a.lat - b.lat),
@@ -71,6 +97,9 @@ function App() {
     [selected, I] = useState(0),
     [q, Q] = useState(""),
     [search, DS] = useState(""),
+    [queueState, QS] = useState("REVIEW"),
+    [previewEpoch, PE] = useState(0),
+    [previewError, PRE] = useState(""),
     [total, T] = useState(0),
     [offset, O] = useState(0),
     [error, E] = useState(""),
@@ -108,13 +137,18 @@ function App() {
     };
   }, [page]);
   const requestId = useRef(0);
+  const pendingDecision = useRef<{ signature: string; key: string } | null>(
+    null,
+  );
   const refresh = useCallback(async () => {
     const request = ++requestId.current;
     L(true);
     try {
       const [s, p, e, h, v, src, j] = await Promise.all([
         api("status"),
-        api(`pairs?q=${encodeURIComponent(search)}&offset=${offset}`),
+        api(
+          `pairs?q=${encodeURIComponent(search)}&offset=${offset}&state=${queueState}`,
+        ),
         api("entities"),
         api("history"),
         api("evaluation"),
@@ -122,6 +156,10 @@ function App() {
         api("jobs"),
       ]);
       if (request !== requestId.current) return;
+      if (offset > 0 && p.total <= offset) {
+        O(Math.max(0, Math.floor((p.total - 1) / 40) * 40));
+        return;
+      }
       S(s);
       P(p.items);
       I((i) => Math.min(Math.max(i, 0), Math.max(0, p.items.length - 1)));
@@ -131,13 +169,14 @@ function App() {
       EV(v);
       SO(src);
       J(j);
+      PE((i) => i + 1);
       E("");
     } catch (e) {
       if (request === requestId.current) E(String(e));
     } finally {
       if (request === requestId.current) L(false);
     }
-  }, [search, offset]);
+  }, [search, offset, queueState]);
   useEffect(() => {
     refresh();
   }, [refresh]);
@@ -148,30 +187,52 @@ function App() {
   useEffect(() => {
     let current = true;
     IM(null);
+    PRE("");
     if (p)
       api(`pairs/${p.id}/impact`)
         .then((v) => {
           if (current) IM(v);
         })
-        .catch(() => {});
+        .catch((e) => {
+          if (current) PRE(String(e));
+        });
     return () => {
       current = false;
     };
-  }, [p?.id, p?.revision]);
+  }, [p?.id, p?.revision, previewEpoch]);
   async function decide(kind: string) {
-    if (!p || busy) return;
+    if (
+      !p ||
+      busy ||
+      loading ||
+      !impact?.context_version ||
+      p.source_stale ||
+      p.status !== "REVIEW"
+    )
+      return;
     if (!note.trim()) {
       E("Add an evidence note before recording your decision.");
       return;
     }
     B(true);
     try {
+      const signature = JSON.stringify([
+        p.id,
+        p.revision,
+        kind,
+        note,
+        impact.context_version,
+      ]);
+      if (pendingDecision.current?.signature !== signature)
+        pendingDecision.current = { signature, key: crypto.randomUUID() };
       await api(`pairs/${p.id}/decision`, {
         kind,
         rationale: note,
         revision: p.revision,
-        idempotency_key: crypto.randomUUID(),
+        idempotency_key: pendingDecision.current.key,
+        context_version: impact.context_version,
       });
+      pendingDecision.current = null;
       V("Decision recorded. Source records preserved.");
       N("");
       await refresh();
@@ -183,7 +244,12 @@ function App() {
   }
   useEffect(() => {
     function key(e: KeyboardEvent) {
-      if (["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName))
+      if (busy || loading || page !== "Review") return;
+      if (
+        ["INPUT", "TEXTAREA", "SELECT"].includes(
+          (e.target as HTMLElement).tagName,
+        )
+      )
         return;
       if (e.key === "j" && pairs.length)
         I((i) => Math.min(i + 1, pairs.length - 1));
@@ -191,7 +257,7 @@ function App() {
     }
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [pairs]);
+  }, [pairs, busy, loading, page]);
   return (
     <div className="app">
       <aside className="sidebar">
@@ -216,6 +282,7 @@ function App() {
             ["Evaluation", ChartNoAxesCombined],
           ].map(([name, Icon]: any) => (
             <button
+              disabled={busy}
               aria-label={name}
               aria-current={page === name ? "page" : undefined}
               className={page === name ? "active" : ""}
@@ -326,6 +393,7 @@ function App() {
                   <div className="search">
                     <Search size={16} />
                     <input
+                      disabled={busy}
                       aria-label="Search places"
                       placeholder="Search places…"
                       value={q}
@@ -336,20 +404,50 @@ function App() {
                       }}
                     />
                   </div>
+                  <div className="queuefilters">
+                    <label htmlFor="queue-status">Show</label>
+                    <select
+                      id="queue-status"
+                      aria-label="Review status"
+                      disabled={busy}
+                      value={queueState}
+                      onChange={(e) => {
+                        QS(e.target.value);
+                        O(0);
+                        I(0);
+                      }}
+                    >
+                      <option value="REVIEW">Needs review</option>
+                      <option value="SAME">Same place</option>
+                      <option value="DIFFERENT">Different places</option>
+                      <option value="UNCERTAIN">Unsure</option>
+                      <option value="">All pairs</option>
+                    </select>
+                  </div>
                   <div className="queuelabel">
                     CANDIDATE PAIRS <span>SCORE ↓</span>
                   </div>
-                  {loading ? (
+                  {error && pairs.length === 0 ? (
+                    <div className="empty">
+                      Data unavailable.
+                      <small>Check the local service and retry.</small>
+                    </div>
+                  ) : loading ? (
                     <div className="empty">Loading records…</div>
                   ) : pairs.length === 0 ? (
                     <div className="empty">
                       No matching pairs.
-                      <small>Import and process sources to begin.</small>
+                      <small>
+                        {status.records
+                          ? "Try another search or review-status filter."
+                          : "Import and process sources to begin."}
+                      </small>
                     </div>
                   ) : (
                     pairs.map((x, i) => (
                       <button
                         key={x.id}
+                        disabled={busy}
                         aria-pressed={i === selected}
                         className={"pair " + (i === selected ? "chosen" : "")}
                         onClick={() => {
@@ -380,7 +478,7 @@ function App() {
                   )}
                   <div className="pagination">
                     <button
-                      disabled={offset === 0}
+                      disabled={busy || loading || offset === 0}
                       onClick={() => {
                         O(Math.max(0, offset - 40));
                         I(0);
@@ -392,7 +490,7 @@ function App() {
                       {total ? offset + 1 : 0}–{Math.min(offset + 40, total)}
                     </span>
                     <button
-                      disabled={offset + 40 >= total}
+                      disabled={busy || loading || offset + 40 >= total}
                       onClick={() => {
                         O(offset + 40);
                         I(0);
@@ -411,6 +509,12 @@ function App() {
                         </span>
                         <span className="muted">Pair {p.id.slice(0, 8)}</span>
                       </div>
+                      {p.source_stale && (
+                        <div role="alert" className="alert">
+                          Source records changed. Run matching again before
+                          making a decision.
+                        </div>
+                      )}
                       <h2>Same place, different records?</h2>
                       <p className="muted">
                         Confirm the physical location, including branch and
@@ -431,7 +535,9 @@ function App() {
                               ["Business phone", r.phone || "Not provided"],
                               [
                                 "Coordinates",
-                                `${r.lat?.toFixed(5)}, ${r.lon?.toFixed(5)}`,
+                                hasCoordinates(r)
+                                  ? `${r.lat.toFixed(5)}, ${r.lon.toFixed(5)}`
+                                  : "Not provided",
                               ],
                               ["Record version", r.version],
                             ].map(([a, b]) => (
@@ -474,10 +580,20 @@ function App() {
                         <label htmlFor="evidence-note">Decision evidence</label>
                         <textarea
                           id="evidence-note"
+                          disabled={busy}
+                          maxLength={2000}
                           placeholder="What supports your decision? Cite the address, branch or independent evidence…"
                           value={note}
                           onChange={(e) => N(e.target.value)}
                         />
+                        {previewError && (
+                          <div role="alert" className="alert">
+                            Group preview unavailable: {previewError}
+                            <button onClick={() => PE((i) => i + 1)}>
+                              Retry preview
+                            </button>
+                          </div>
+                        )}
                         <details className="impactpreview">
                           <summary>
                             Group impact ·{" "}
@@ -498,7 +614,13 @@ function App() {
                         </div>
                         <div className="actions">
                           <button
-                            disabled={busy || loading || p.status !== "REVIEW"}
+                            disabled={
+                              busy ||
+                              loading ||
+                              !impact?.context_version ||
+                              p.source_stale ||
+                              p.status !== "REVIEW"
+                            }
                             className="primary"
                             onClick={() => decide("SAME")}
                           >
@@ -506,7 +628,13 @@ function App() {
                             Same place
                           </button>
                           <button
-                            disabled={busy || loading || p.status !== "REVIEW"}
+                            disabled={
+                              busy ||
+                              loading ||
+                              !impact?.context_version ||
+                              p.source_stale ||
+                              p.status !== "REVIEW"
+                            }
                             className="secondary"
                             onClick={() => decide("DIFFERENT")}
                           >
@@ -514,7 +642,13 @@ function App() {
                             Different places
                           </button>
                           <button
-                            disabled={busy || loading || p.status !== "REVIEW"}
+                            disabled={
+                              busy ||
+                              loading ||
+                              !impact?.context_version ||
+                              p.source_stale ||
+                              p.status !== "REVIEW"
+                            }
                             className="secondary"
                             onClick={() => decide("UNCERTAIN")}
                           >
@@ -534,7 +668,7 @@ function App() {
                   <h3>Location context</h3>
                   <div className="map">
                     <div className="mapgrid" />
-                    {p && (
+                    {p && hasCoordinates(p.a) && hasCoordinates(p.b) && (
                       <>
                         <i className="pin pinA" style={pinStyle(p.a, p.b)}>
                           A
@@ -675,6 +809,13 @@ function App() {
                     <span className="tag done">
                       {e.members.length} source records
                     </span>
+                    {e.needs_review && (
+                      <div role="alert" className="alert">
+                        Source changed since confirmation. Showing reviewed
+                        values; excluded from export. Undo the affected link and
+                        run matching before confirming again.
+                      </div>
+                    )}
                     <h2>{e.fields.name.value}</h2>
                     <p>{e.fields.address.value}</p>
                     {Object.entries(e.fields).map(([k, f]: any) => (
@@ -682,7 +823,7 @@ function App() {
                         <summary>
                           {k}{" "}
                           {f.conflict && (
-                            <span className="tag">Conflicting values</span>
+                            <span className="tag">Source values differ</span>
                           )}
                         </summary>
                         {f.values.map((v: any) => (

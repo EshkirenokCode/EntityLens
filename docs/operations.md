@@ -2,7 +2,7 @@
 
 ## Local launch
 
-Python 3.12+, Node 22+. `make setup`, `make data`, `make train`, `make web`, `make run`. A second terminal runs `make worker`. UI: http://127.0.0.1:8765 . OpenAPI: /docs. No cloud account or API key required. The downloader pins Overture release 2026-10-21.0. The NYC endpoint is live: a new download is a new snapshot, not a guarantee of reproducing an older payload. Preserve original hashed files to reproduce the exact experiment.
+Python 3.12+, Node 22+. `make setup`, `make data`, `make train`, `make web`, `make dev`. The combined launcher supervises API and worker with the same database; Ctrl+C stops both. Separate `make run` / `make worker` remain available. The default database is project-relative concord-v1.db; older concord.db files are preserved and can be selected explicitly with CONCORD_DB. UI: http://127.0.0.1:8765 . OpenAPI: /docs. No cloud account or API key required. The downloader pins Overture release 2026-10-21.0. The NYC endpoint is live: a new download is a new snapshot, not a guarantee of reproducing an older payload. Preserve original hashed files to reproduce the exact experiment.
 
 SQLite WAL is the implemented storage backend, shared by one API and one worker on one machine. SQL schema creation is idempotent in store.init. PostgreSQL/PostGIS, SQLAlchemy migrations and distributed workers remain future deployment work; they are not implemented support. Docker Compose is provided for the implemented SQLite deployment and has not been executed in this environment because Docker is unavailable.
 
@@ -31,3 +31,11 @@ Back up SQLite using Python sqlite3.Connection.backup while live, or stop API/wo
 ## CI
 
 Local checks: `make test`. `docs/ci.yml.template` contains the intended GitHub Actions workflow. The current repository token cannot create files under .github/workflows because it lacks workflow scope; move the template there once authorized credentials support it. No successful hosted CI run is claimed.
+
+## Record and group safety update — 2026-10-25
+
+Review API requests require context_version from the impact endpoint. It binds the affected membership, source versions and active decisions; a changed context returns 409. Missing context returns 422. The UI disables submission until preview loads. Failed network requests retain the same idempotency key for an unchanged intent.
+
+Confirmation saves immutable record payloads in decision_records. Canonical fields use those reviewed payloads. If a current source version changes, the entity is marked needs_review and excluded from normal export; historical values remain visible. Missing legacy historical payloads are explicitly marked unavailable, rather than reconstructed as reviewed current data. Undo affected links and rerun matching to investigate the new versions.
+
+The worker validates source versions and lease expiry before publishing. Candidates no longer returned are retired from the pending queue; accepted decisions remain intact. Jobs cannot falsely report successful retries/cancellation of completed work. Street-number suffixes and explicit unit identifiers are checked conservatively during merging.

@@ -37,3 +37,9 @@ Do not retrain/tune from the current holdout and call it a new sealed test. Firs
 - Added HTTP integration coverage: 16 tests now pass. Two additional verification passes and production builds passed. One dependency deprecation warning is documented.
 - Local warm pair-page median approximately 143ms for 40 records. No new model-quality claim.
 - Full test walkthrough, five use cases and portfolio boundaries: docs/testing-guide.md. Findings and pass results: docs/polish-audit.md.
+
+## Correctness follow-up — 2026-10-25
+
+Reproduced and corrected source-version races, stale canonical values, mutable group previews, pending-candidate retirement, address suffix/unit conflicts, terminal job action responses, Unicode search, invalid geometry handling and pending review navigation. Immutable decision_records and required review context fingerprints added. Changed entities retain reviewed values and are excluded from normal export. Local startup unified with make dev and project-relative concord-v1.db.
+
+33 tests and the production build pass; feature compatibility checked across all 66,660 real pairs without retraining. Browser confirmed submit → queue advance → canonical entity → undo. Full evidence: docs/correctness-audit-2026-10-25.md. Independent model quality and deployment limitations remain unchanged.

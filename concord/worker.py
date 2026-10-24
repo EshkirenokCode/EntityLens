@@ -50,22 +50,42 @@ def tick():
                     status="REVIEW",
                 )
             )
-        if Path("artifacts/model.pkl").exists():
-            with open("artifacts/model.pkl", "rb") as fh:
+        if (store.ROOT / "artifacts/model.pkl").exists():
+            with open(store.ROOT / "artifacts/model.pkl", "rb") as fh:
                 bundle = pickle.load(fh)
             score_pairs(ps, {r["id"]: r for r in records}, bundle)
         with store.connect() as c:
             c.execute("BEGIN IMMEDIATE")
             job = c.execute("SELECT * FROM jobs WHERE id=?", (ident,)).fetchone()
-            if job["status"] != "running" or job["lease"] != token:
+            if (
+                job["status"] != "running"
+                or job["lease"] != token
+                or time.time() > token
+            ):
                 raise ValueError("Job lease no longer valid")
+            current = {r["id"]: r["version"] for r in store.rows(c, "records")}
+            if current != {r["id"]: r["version"] for r in records}:
+                raise ValueError(
+                    "Source changed during matching; retry with current snapshot"
+                )
+            current_ids = {p["id"] for p in ps}
+            for row in c.execute(
+                "SELECT id,payload FROM pairs WHERE json_extract(payload,'$.status')='REVIEW'"
+            ).fetchall():
+                if row["id"] not in current_ids:
+                    retired = json.loads(row["payload"])
+                    retired["status"] = "RETIRED"
+                    c.execute(
+                        "UPDATE pairs SET payload=?,revision=revision+1 WHERE id=?",
+                        (json.dumps(retired), row["id"]),
+                    )
             for p in ps:
                 old = c.execute(
                     "SELECT payload FROM pairs WHERE id=?", (p["id"],)
                 ).fetchone()
                 if old:
                     before = json.loads(old[0])
-                    if before["status"] != "REVIEW":
+                    if before["status"] not in ("REVIEW", "RETIRED"):
                         continue
                     c.execute(
                         "UPDATE pairs SET payload=?,revision=revision+1 WHERE id=?",
@@ -90,6 +110,9 @@ def tick():
 
 
 if __name__ == "__main__":
-    while True:
-        if not tick():
-            time.sleep(2)
+    try:
+        while True:
+            if not tick():
+                time.sleep(2)
+    except KeyboardInterrupt:
+        pass

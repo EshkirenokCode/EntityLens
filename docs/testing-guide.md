@@ -8,7 +8,7 @@ The trained model learned silver supervision. Its perfect agreement with heurist
 
 ## Quick test without downloading again
 
-Open http://127.0.0.1:8765 . Existing local data has 7,118 records and 66,660 candidates. If the process stopped, launch `make run`; launch `make worker` in a second terminal. Set the same CONCORD_DB for both processes. The current verified session uses `CONCORD_DB=concord-v1.db`.
+Open http://127.0.0.1:8765 . Existing local data has 7,118 records and 66,660 candidates. If the process stopped, launch `make dev` to start the API and worker together. Set the same CONCORD_DB for both processes. The current verified session uses `CONCORD_DB=concord-v1.db`.
 
 1. Review: search for `New Shun Wei`, compare names, street address, business phone and coordinates. Expand Group impact. An empty evidence note must prevent saving.
 2. Add a provisional evidence note and confirm Same place. Entities must show source values and lineage. Refresh: the decision persists.
@@ -34,3 +34,7 @@ Open http://127.0.0.1:8765 . Existing local data has 7,118 records and 66,660 ca
 `make test` runs Python regressions and a TypeScript/production build. Tests use temporary databases and include transitive cannot-link, branch protection, stale source/revision, idempotency, undo, expired leases, split isolation, schema mismatch, HTTP pagination/search, job lifecycle and connection closure. `scripts/benchmark.py` runs bounded warm HTTP timings.
 
 Docker/Compose and public deployment remain unverified. Hosted CI needs a GitHub credential with workflow scope; the workflow remains a template. A Starlette TestClient deprecation warning is currently emitted by installed dependencies; requests still pass.
+
+## Additional regression checks — 2026-10-25
+
+Review defaults to Needs review. Same/Different/Unsure filters expose processed pairs. A saved decision removes its pair from pending results; Undo restores it. Completed jobs reject retry and cancel (409). Unicode search supports casefold matching. A changed group context rejects an old confirmation, and changed source data cannot silently alter reviewed canonical values or enter normal export. The worker rejects results if records change during matching, retires removed pending candidates and refuses publication after lease expiry.

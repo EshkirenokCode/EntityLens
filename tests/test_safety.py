@@ -102,3 +102,22 @@ def test_shared_address_does_not_force_match(db):
     )
     with store.connect() as c:
         assert all(len(g) == 1 for g in store.components(c)[0])
+
+
+@pytest.mark.parametrize(
+    "coords",
+    [
+        {"lat": 40.0, "lon": None},
+        {"lat": float("nan"), "lon": 0.0},
+        {"lat": 91.0, "lon": 0.0},
+        {"lat": 0.0, "lon": 181.0},
+    ],
+)
+def test_invalid_coordinates_abstain_without_crashing(coords):
+    a = dict(
+        id="a", name="Unusual Cafe", address="1 Main", phone="", lat=40.0, lon=-74.0
+    )
+    b = dict(a, id="b", **coords)
+    assert distance(a, b) is None
+    assert len(list(candidates([a], [b]))) == 1
+    assert features(a, b)[7] == 1

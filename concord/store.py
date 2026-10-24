@@ -1,14 +1,18 @@
-import os, json, sqlite3, uuid, time
+import os, json, sqlite3, uuid, time, hashlib
 from pathlib import Path
 from contextlib import contextmanager
 
-DB = os.environ.get("CONCORD_DB", "concord.db")
+ROOT = Path(__file__).resolve().parents[1]
+DB = os.environ.get("CONCORD_DB", str(ROOT / "concord-v1.db"))
 
 
 @contextmanager
 def connect():
     c = sqlite3.connect(DB, timeout=30)
     c.row_factory = sqlite3.Row
+    c.create_function(
+        "casefold", 1, lambda value: str(value or "").casefold(), deterministic=True
+    )
     c.execute("PRAGMA foreign_keys=ON")
     c.execute("PRAGMA journal_mode=WAL")
     try:
@@ -26,6 +30,7 @@ def init():
  CREATE TABLE IF NOT EXISTS pairs(id TEXT PRIMARY KEY,payload TEXT NOT NULL,revision INTEGER NOT NULL DEFAULT 1);
  CREATE TABLE IF NOT EXISTS decisions(id TEXT PRIMARY KEY,pair_id TEXT,kind TEXT,rationale TEXT,created REAL,undone INTEGER DEFAULT 0,idempotency TEXT UNIQUE);
  CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,kind TEXT,payload TEXT,created REAL);
+ CREATE TABLE IF NOT EXISTS decision_records(decision_id TEXT,record_id TEXT,payload TEXT NOT NULL,PRIMARY KEY(decision_id,record_id));
  CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY,status TEXT,attempts INTEGER DEFAULT 0,lease REAL,error TEXT,created REAL);
  """)
 
@@ -34,12 +39,37 @@ def bootstrap():
     init()
     with connect() as c:
         for path, table in [("records", "records"), ("pairs", "pairs")]:
-            p = Path(f"data/processed/{path}.json")
+            p = ROOT / f"data/processed/{path}.json"
             if p.exists():
                 for row in json.loads(p.read_text()):
                     c.execute(
                         f"INSERT OR IGNORE INTO {table}(id,payload) VALUES(?,?)",
                         (row["id"], json.dumps(row)),
+                    )
+
+        for d in c.execute(
+            "SELECT d.id,p.payload FROM decisions d JOIN pairs p ON p.id=d.pair_id WHERE d.undone=0"
+        ):
+            pair = json.loads(d["payload"])
+            for rid, version in zip([pair["left"], pair["right"]], pair["versions"]):
+                current = c.execute(
+                    "SELECT payload FROM records WHERE id=?", (rid,)
+                ).fetchone()
+                historical = c.execute(
+                    "SELECT payload FROM record_versions WHERE record_id=? AND version=?",
+                    (rid, version),
+                ).fetchone()
+                payload = (
+                    historical["payload"]
+                    if historical
+                    else current["payload"]
+                    if current and json.loads(current["payload"])["version"] == version
+                    else None
+                )
+                if payload:
+                    c.execute(
+                        "INSERT OR IGNORE INTO decision_records VALUES(?,?,?)",
+                        (d["id"], rid, payload),
                     )
 
 
@@ -85,7 +115,7 @@ def components(c, excluding=None):
     return list(groups.values()), records
 
 
-def decide(pair_id, kind, rationale, revision, key):
+def decide(pair_id, kind, rationale, revision, key, context_version=None):
     if kind not in ("SAME", "DIFFERENT", "UNCERTAIN"):
         raise ValueError("Invalid decision")
     if not rationale.strip():
@@ -116,11 +146,30 @@ def decide(pair_id, kind, rationale, revision, key):
             "SELECT 1 FROM decisions WHERE pair_id=? AND undone=0", (pair_id,)
         ).fetchone():
             raise ValueError("Undo the existing decision first")
+        if (
+            context_version is not None
+            and review_context(c, pair_id)["context_version"] != context_version
+        ):
+            raise ValueError("Group changed since preview: refresh before confirming")
+        existing_groups, _ = components(c)
+        if kind == "SAME":
+            for g in existing_groups:
+                if p["left"] in g or p["right"] in g:
+                    _, changed = reviewed_members(c, g, rs)
+                    if changed:
+                        raise ValueError(
+                            "Group contains changed source records: undo and reevaluate the affected links first"
+                        )
         ident = str(uuid.uuid4())
         c.execute(
             "INSERT INTO decisions(id,pair_id,kind,rationale,created,idempotency) VALUES(?,?,?,?,?,?)",
             (ident, pair_id, kind, rationale, time.time(), key),
         )
+        for rid in [p["left"], p["right"]]:
+            c.execute(
+                "INSERT INTO decision_records VALUES(?,?,?)",
+                (ident, rid, json.dumps(rs[rid])),
+            )
         groups, _ = components(c)
         if kind == "SAME":
             from concord.features import distance
@@ -133,11 +182,28 @@ def decide(pair_id, kind, rationale, revision, key):
                         d = distance(rs[a], rs[b])
                         import re
 
-                        ha = re.match(r"^\d+", rs[a]["address"])
-                        hb = re.match(r"^\d+", rs[b]["address"])
+                        ha = re.match(
+                            r"^\s*\d+(?:-\d+)?[a-z]?\b",
+                            (rs[a].get("address") or "").casefold(),
+                        )
+                        hb = re.match(
+                            r"^\s*\d+(?:-\d+)?[a-z]?\b",
+                            (rs[b].get("address") or "").casefold(),
+                        )
                         if ha and hb and ha[0] != hb[0]:
                             raise ValueError(
                                 "Conflicting street numbers: resolve source evidence before merging branches"
+                            )
+                        unit_pattern = r"(?:\b(?:suite|unit|ste|apt|apartment)\.?\s*#?\s*|#\s*)([a-z0-9-]+)\b"
+                        ua = re.search(
+                            unit_pattern, (rs[a].get("address") or "").casefold()
+                        )
+                        ub = re.search(
+                            unit_pattern, (rs[b].get("address") or "").casefold()
+                        )
+                        if ua and ub and ua[1] != ub[1]:
+                            raise ValueError(
+                                "Conflicting units: shared building does not establish branch identity"
                             )
                         if d is not None and d > 300:
                             raise ValueError(
@@ -196,3 +262,82 @@ def undo(ident):
             "INSERT INTO events(kind,payload,created) VALUES(?,?,?)",
             ("undo", json.dumps(dict(decision=ident)), time.time()),
         )
+
+
+def review_context(c, pair_id):
+    row = c.execute("SELECT payload FROM pairs WHERE id=?", (pair_id,)).fetchone()
+    if not row:
+        raise KeyError(pair_id)
+    pair = json.loads(row["payload"])
+    groups, rs = components(c)
+    affected = sorted(
+        {k for g in groups if pair["left"] in g or pair["right"] in g for k in g}
+    )
+    touched = []
+    for d in c.execute(
+        "SELECT d.id,d.kind,p.payload FROM decisions d JOIN pairs p ON p.id=d.pair_id WHERE d.undone=0 ORDER BY d.id"
+    ):
+        p = json.loads(d["payload"])
+        if p["left"] in affected or p["right"] in affected:
+            touched.append((d["id"], d["kind"]))
+    version = hashlib.sha256(
+        json.dumps(
+            [[(k, rs[k]["version"]) for k in affected], touched], sort_keys=True
+        ).encode()
+    ).hexdigest()
+    return dict(
+        context_version=version,
+        members=[
+            dict(
+                id=k,
+                name=rs[k]["name"],
+                address=rs[k]["address"],
+                version=rs[k]["version"],
+            )
+            for k in affected
+        ],
+        record_versions=pair["versions"],
+        policy="Full group checked for cannot-link and location conflicts on confirmation",
+    )
+
+
+def reviewed_members(c, group, current):
+    if len(group) < 2:
+        return {k: current[k] for k in group}, []
+    historical = {}
+    changed = set()
+    for d in c.execute(
+        "SELECT d.id,p.payload FROM decisions d JOIN pairs p ON p.id=d.pair_id WHERE d.undone=0 AND d.kind='SAME' ORDER BY d.created,d.id"
+    ):
+        p = json.loads(d["payload"])
+        if p["left"] not in group:
+            continue
+        for rid, version in zip([p["left"], p["right"]], p["versions"]):
+            row = c.execute(
+                "SELECT payload FROM decision_records WHERE decision_id=? AND record_id=?",
+                (d["id"], rid),
+            ).fetchone()
+            record = json.loads(row["payload"]) if row else None
+            if record is None or record["version"] != current[rid]["version"]:
+                changed.add(rid)
+            if record is not None:
+                if (
+                    rid in historical
+                    and historical[rid]["version"] != record["version"]
+                ):
+                    changed.add(rid)
+                historical.setdefault(rid, record)
+    for rid in group:
+        if rid not in historical:
+            historical[rid] = dict(
+                id=rid,
+                source=current[rid]["source"],
+                name="Reviewed record unavailable",
+                address="",
+                phone="",
+                lat=None,
+                lon=None,
+                version="unknown",
+            )
+            changed.add(rid)
+    return historical, sorted(changed)

@@ -14,6 +14,7 @@ class Decision(BaseModel):
     rationale: str = Field(min_length=1, max_length=2000)
     revision: int
     idempotency_key: str = Field(min_length=8, max_length=100)
+    context_version: str = Field(min_length=64, max_length=64)
 
 
 @app.get("/api/status")
@@ -40,7 +41,7 @@ def pairs(
     state: str = "",
 ):
     with store.connect() as c:
-        where = "WHERE (?='' OR json_extract(p.payload,'$.status')=?) AND (?='' OR instr(lower(json_extract(a.payload,'$.name') || ' ' || json_extract(b.payload,'$.name')),lower(?))>0)"
+        where = "WHERE (?='' OR json_extract(p.payload,'$.status')=?) AND (?='' OR instr(casefold(json_extract(a.payload,'$.name') || ' ' || json_extract(b.payload,'$.name')),casefold(?))>0)"
         join = " FROM pairs p JOIN records a ON a.id=json_extract(p.payload,'$.left') JOIN records b ON b.id=json_extract(p.payload,'$.right') "
         params = (state, state, q, q)
         total = c.execute("SELECT count(*)" + join + where, params).fetchone()[0]
@@ -48,7 +49,7 @@ def pairs(
             "SELECT p.*,a.payload AS a,b.payload AS b"
             + join
             + where
-            + " ORDER BY json_extract(p.payload,'$.score') DESC,p.id LIMIT ? OFFSET ?",
+            + " ORDER BY json_extract(p.payload,'$.score') DESC,coalesce(json_extract(p.payload,'$.baseline'),0) DESC,p.id LIMIT ? OFFSET ?",
             params + (limit, offset),
         )
         return dict(
@@ -57,6 +58,8 @@ def pairs(
                 dict(
                     **json.loads(r["payload"]),
                     revision=r["revision"],
+                    source_stale=json.loads(r["payload"])["versions"]
+                    != [json.loads(r["a"])["version"], json.loads(r["b"])["version"]],
                     a=json.loads(r["a"]),
                     b=json.loads(r["b"]),
                 )
@@ -68,7 +71,14 @@ def pairs(
 @app.post("/api/pairs/{ident}/decision")
 def decision(ident: str, d: Decision):
     try:
-        return store.decide(ident, d.kind, d.rationale, d.revision, d.idempotency_key)
+        return store.decide(
+            ident,
+            d.kind,
+            d.rationale,
+            d.revision,
+            d.idempotency_key,
+            context_version=d.context_version,
+        )
     except KeyError:
         raise HTTPException(404, "Proposal not found")
     except ValueError as e:
@@ -83,7 +93,8 @@ def entities():
         for g in groups:
             if len(g) < 2:
                 continue
-            members = [rs[k] for k in sorted(g)]
+            reviewed, changed = store.reviewed_members(c, g, rs)
+            members = [reviewed[k] for k in sorted(g)]
             fields = {}
             for field in ["name", "address", "lat", "lon", "phone"]:
                 values = [
@@ -98,7 +109,15 @@ def entities():
                     values=values,
                     conflict=len({str(v["value"]) for v in values}) > 1,
                 )
-            out.append(dict(id="entity:" + min(g), members=members, fields=fields))
+            out.append(
+                dict(
+                    id="entity:" + min(g),
+                    members=members,
+                    fields=fields,
+                    needs_review=bool(changed),
+                    changed_records=changed,
+                )
+            )
         return out
 
 
@@ -168,8 +187,14 @@ def jobs():
 @app.post("/api/jobs/{ident}/cancel")
 def cancel_job(ident: str):
     with store.connect() as c:
-        if not c.execute("SELECT 1 FROM jobs WHERE id=?", (ident,)).fetchone():
+        c.execute("BEGIN IMMEDIATE")
+        row = c.execute("SELECT status FROM jobs WHERE id=?", (ident,)).fetchone()
+        if not row:
             raise HTTPException(404, "Job not found")
+        if row["status"] == "cancelled":
+            return {"status": "cancelled"}
+        if row["status"] not in ("queued", "running"):
+            raise HTTPException(409, "Only queued or running jobs can be cancelled")
         c.execute(
             "UPDATE jobs SET status='cancelled',lease=NULL WHERE id=? AND status IN ('queued','running')",
             (ident,),
@@ -181,8 +206,11 @@ def cancel_job(ident: str):
 def retry_job(ident: str):
     with store.connect() as c:
         c.execute("BEGIN IMMEDIATE")
-        if not c.execute("SELECT 1 FROM jobs WHERE id=?", (ident,)).fetchone():
+        row = c.execute("SELECT status FROM jobs WHERE id=?", (ident,)).fetchone()
+        if not row:
             raise HTTPException(404, "Job not found")
+        if row["status"] not in ("failed", "cancelled"):
+            raise HTTPException(409, "Only failed or cancelled jobs can be retried")
         if c.execute(
             "SELECT 1 FROM jobs WHERE status IN ('queued','running')"
         ).fetchone():
@@ -196,8 +224,10 @@ def retry_job(ident: str):
 
 @app.get("/api/export")
 def export(limit: int = Query(100, ge=1, le=500)):
+    snapshot = entities()
     return {
-        "entities": entities()[:limit],
+        "entities": [e for e in snapshot if not e["needs_review"]][:limit],
+        "excluded_changed_entities": sum(e["needs_review"] for e in snapshot),
         "format": "json",
         "policy": "local analyst decisions; source provenance included",
     }
@@ -227,24 +257,7 @@ def impact(ident: str):
         row = c.execute("SELECT payload FROM pairs WHERE id=?", (ident,)).fetchone()
         if not row:
             raise HTTPException(404, "Proposal not found")
-        p = json.loads(row[0])
-        groups, rs = store.components(c)
-        affected = sorted(
-            {k for g in groups if p["left"] in g or p["right"] in g for k in g}
-        )
-        return dict(
-            members=[
-                dict(
-                    id=k,
-                    name=rs[k]["name"],
-                    address=rs[k]["address"],
-                    version=rs[k]["version"],
-                )
-                for k in affected
-            ],
-            record_versions=p["versions"],
-            policy="Full group checked for cannot-link and location conflicts on confirmation",
-        )
+        return store.review_context(c, ident)
 
 
 if Path("web/dist").exists():

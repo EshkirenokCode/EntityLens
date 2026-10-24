@@ -20,12 +20,28 @@ def norm(v):
     )
 
 
+def coordinates(record):
+    try:
+        lat, lon = float(record["lat"]), float(record["lon"])
+        if (
+            math.isfinite(lat)
+            and math.isfinite(lon)
+            and -90 <= lat <= 90
+            and -180 <= lon <= 180
+        ):
+            return lat, lon
+    except (TypeError, ValueError, KeyError):
+        pass
+    return None
+
+
 def distance(a, b):
-    if any(x.get(k) is None for x in (a, b) for k in ("lat", "lon")):
+    first, second = coordinates(a), coordinates(b)
+    if first is None or second is None:
         return None
-    p, q = math.radians(a["lat"]), math.radians(b["lat"])
+    p, q = math.radians(first[0]), math.radians(second[0])
     d = q - p
-    l = math.radians(b["lon"] - a["lon"])
+    l = math.radians(second[1] - first[1])
     return (
         6371008.8
         * 2
@@ -69,17 +85,17 @@ def candidates(left, right, limit=30):
     grid = {}
     tokens = {}
     for b in right:
-        if b.get("lat") is not None:
-            grid.setdefault((int(b["lat"] / 0.003), int(b["lon"] / 0.003)), []).append(
-                b
-            )
+        xy = coordinates(b)
+        if xy is not None:
+            grid.setdefault((int(xy[0] / 0.003), int(xy[1] / 0.003)), []).append(b)
         for t in set(norm(b["name"]).split()):
             if len(t) > 3:
                 tokens.setdefault(t, []).append(b)
     for a in left:
         pool = {}
-        if a.get("lat") is not None:
-            x, y = int(a["lat"] / 0.003), int(a["lon"] / 0.003)
+        xy = coordinates(a)
+        if xy is not None:
+            x, y = int(xy[0] / 0.003), int(xy[1] / 0.003)
             for dx in range(-1, 2):
                 for dy in range(-1, 2):
                     for b in grid.get((x + dx, y + dy), []):
