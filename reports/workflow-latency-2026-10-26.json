@@ -1,0 +1,45 @@
+{
+  "environment": "macOS-26.6.2-arm64-arm-64bit",
+  "cpu_cores": 14,
+  "records": 7118,
+  "candidates": 66660,
+  "concurrency": 1,
+  "cache": "warm; one unmeasured request per endpoint",
+  "repeats": 5,
+  "measurements": {
+    "/api/pairs?limit=40&state=REVIEW&order=score": {
+      "p50_ms": 166.83800000464544,
+      "max_ms": 171.1135419900529,
+      "samples_ms": [
+        166.50341695640236,
+        165.84470903035253,
+        166.83800000464544,
+        168.8970000250265,
+        171.1135419900529
+      ]
+    },
+    "/api/pairs?limit=40&state=REVIEW&order=disagreement": {
+      "p50_ms": 185.31595799140632,
+      "max_ms": 187.94129200978205,
+      "samples_ms": [
+        187.94129200978205,
+        183.0504999961704,
+        180.9367910027504,
+        185.31595799140632,
+        186.70391698833555
+      ]
+    },
+    "/api/pairs/8c246fccfd2209cf7624/impact": {
+      "p50_ms": 109.44979201303795,
+      "max_ms": 134.6087499987334,
+      "samples_ms": [
+        101.14991699811071,
+        109.44979201303795,
+        134.6087499987334,
+        133.8449590257369,
+        99.62250001262873
+      ]
+    }
+  },
+  "limitations": "Small local warm HTTP sample; not batch throughput or production load. No p95 estimate from five observations."
+}

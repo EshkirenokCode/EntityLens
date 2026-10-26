@@ -43,3 +43,9 @@ Do not retrain/tune from the current holdout and call it a new sealed test. Firs
 Reproduced and corrected source-version races, stale canonical values, mutable group previews, pending-candidate retirement, address suffix/unit conflicts, terminal job action responses, Unicode search, invalid geometry handling and pending review navigation. Immutable decision_records and required review context fingerprints added. Changed entities retain reviewed values and are excluded from normal export. Local startup unified with make dev and project-relative concord-v1.db.
 
 33 tests and the production build pass; feature compatibility checked across all 66,660 real pairs without retraining. Browser confirmed submit → queue advance → canonical entity → undo. Full evidence: docs/correctness-audit-2026-10-25.md. Independent model quality and deployment limitations remain unchanged.
+
+## Analyst workflow improvements — 2026-10-26
+
+Added structured source evidence with exact distance, missing data, model/rule disagreement and shared preview/confirmation blockers. Added disagreement triage and address/pair-ID search, immutable named decision history, direct pair inspection and reloadable local permalinks. Added bounded JSON/CSV exports with provenance, changed-entity exclusion and spreadsheet formula protection. New assessment rendering is a typed component; numeric features are optional detail.
+
+46 tests and production build pass. Browser checked blockers, downloads, history reopening, permalink reload and undo. The test confirmation was undone. Classifier, labels and ML metrics remain unchanged. Details: docs/workflow-improvements-2026-10-26.md.

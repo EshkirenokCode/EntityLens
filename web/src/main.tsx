@@ -15,8 +15,11 @@ import {
   ChevronRight,
   Activity,
   RefreshCw,
+  Download,
+  ExternalLink,
 } from "lucide-react";
 import "./style.css";
+import { PairAssessment, type GroupImpact } from "./components/PairAssessment";
 type RecordRow = {
   id: string;
   name: string;
@@ -37,6 +40,7 @@ type Pair = {
   status: string;
   revision: number;
   source_stale: boolean;
+  model?: string;
 };
 async function api(path: string, body?: unknown) {
   const r = await fetch(
@@ -98,6 +102,10 @@ function App() {
     [q, Q] = useState(""),
     [search, DS] = useState(""),
     [queueState, QS] = useState("REVIEW"),
+    [queueOrder, QO] = useState("score"),
+    [opened, OP] = useState<Pair | null>(null),
+    [opening, OPENING] = useState(false),
+    [exporting, EX] = useState(false),
     [previewEpoch, PE] = useState(0),
     [previewError, PRE] = useState(""),
     [total, T] = useState(0),
@@ -112,7 +120,7 @@ function App() {
     [evaluation, EV] = useState<any>({}),
     [sources, SO] = useState<any[]>([]),
     [jobs, J] = useState<any[]>([]),
-    [impact, IM] = useState<any>(null);
+    [impact, IM] = useState<GroupImpact | null>(null);
   useEffect(() => {
     const t = setTimeout(() => DS(q), 200);
     return () => clearTimeout(t);
@@ -136,6 +144,72 @@ function App() {
       clearInterval(t);
     };
   }, [page]);
+  const pairRequest = useRef(0);
+  const openPair = useCallback(async (ident: string) => {
+    const request = ++pairRequest.current;
+    OPENING(true);
+    setPage("Review");
+    try {
+      const item = await api(`pairs/${encodeURIComponent(ident)}`);
+      if (request !== pairRequest.current) return;
+      OP(item);
+      E("");
+      window.history.replaceState(
+        null,
+        "",
+        `#pair=${encodeURIComponent(ident)}`,
+      );
+    } catch (e) {
+      if (request === pairRequest.current) E(String(e));
+    } finally {
+      if (request === pairRequest.current) OPENING(false);
+    }
+  }, []);
+  const leaveOpened = () => {
+    ++pairRequest.current;
+    OP(null);
+    OPENING(false);
+    window.history.replaceState(
+      null,
+      "",
+      window.location.pathname + window.location.search,
+    );
+  };
+  useEffect(() => {
+    const read = () => {
+      const ident = new URLSearchParams(window.location.hash.slice(1)).get(
+        "pair",
+      );
+      if (ident) openPair(ident);
+      else {
+        ++pairRequest.current;
+        OP(null);
+        OPENING(false);
+      }
+    };
+    read();
+    window.addEventListener("hashchange", read);
+    return () => window.removeEventListener("hashchange", read);
+  }, [openPair]);
+  async function downloadEntities(format: "json" | "csv") {
+    EX(true);
+    try {
+      const r = await fetch(`/api/export?format=${format}&limit=500`);
+      if (!r.ok) throw Error(`Export failed (HTTP ${r.status})`);
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `concord-entities.${format}`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      V("Export downloaded. Changed entities are excluded.");
+    } catch (e) {
+      E(String(e));
+    } finally {
+      EX(false);
+    }
+  }
   const requestId = useRef(0);
   const pendingDecision = useRef<{ signature: string; key: string } | null>(
     null,
@@ -144,22 +218,24 @@ function App() {
     const request = ++requestId.current;
     L(true);
     try {
-      const [s, p, e, h, v, src, j] = await Promise.all([
+      const [s, p, e, h, v, src, j, detail] = await Promise.all([
         api("status"),
         api(
-          `pairs?q=${encodeURIComponent(search)}&offset=${offset}&state=${queueState}`,
+          `pairs?q=${encodeURIComponent(search)}&offset=${offset}&state=${queueState}&order=${queueOrder}`,
         ),
         api("entities"),
         api("history"),
         api("evaluation"),
         api("sources"),
         api("jobs"),
+        opened?.id ? api(`pairs/${opened.id}`) : Promise.resolve(null),
       ]);
       if (request !== requestId.current) return;
       if (offset > 0 && p.total <= offset) {
         O(Math.max(0, Math.floor((p.total - 1) / 40) * 40));
         return;
       }
+      if (opened?.id && detail) OP(detail);
       S(s);
       P(p.items);
       I((i) => Math.min(Math.max(i, 0), Math.max(0, p.items.length - 1)));
@@ -176,11 +252,11 @@ function App() {
     } finally {
       if (request === requestId.current) L(false);
     }
-  }, [search, offset, queueState]);
+  }, [search, offset, queueState, queueOrder, opened?.id]);
   useEffect(() => {
     refresh();
   }, [refresh]);
-  const p = pairs[selected];
+  const p = opened || pairs[selected];
   useEffect(() => {
     N("");
   }, [p?.id]);
@@ -204,12 +280,18 @@ function App() {
     if (
       !p ||
       busy ||
+      opening ||
       loading ||
       !impact?.context_version ||
+      impact.pair_id !== p.id ||
       p.source_stale ||
       p.status !== "REVIEW"
     )
       return;
+    if (kind === "SAME" && impact.merge_blockers?.length) {
+      E(impact.merge_blockers[0].message);
+      return;
+    }
     if (!note.trim()) {
       E("Add an evidence note before recording your decision.");
       return;
@@ -244,7 +326,7 @@ function App() {
   }
   useEffect(() => {
     function key(e: KeyboardEvent) {
-      if (busy || loading || page !== "Review") return;
+      if (busy || opening || loading || page !== "Review" || opened) return;
       if (
         ["INPUT", "TEXTAREA", "SELECT"].includes(
           (e.target as HTMLElement).tagName,
@@ -257,7 +339,7 @@ function App() {
     }
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [pairs, busy, loading, page]);
+  }, [pairs, busy, opening, opened, loading, page]);
   return (
     <div className="app">
       <aside className="sidebar">
@@ -395,9 +477,11 @@ function App() {
                     <input
                       disabled={busy}
                       aria-label="Search places"
-                      placeholder="Search places…"
+                      maxLength={200}
+                      placeholder="Name, address or pair ID…"
                       value={q}
                       onChange={(e) => {
+                        leaveOpened();
                         Q(e.target.value);
                         O(0);
                         I(0);
@@ -412,6 +496,7 @@ function App() {
                       disabled={busy}
                       value={queueState}
                       onChange={(e) => {
+                        leaveOpened();
                         QS(e.target.value);
                         O(0);
                         I(0);
@@ -424,8 +509,31 @@ function App() {
                       <option value="">All pairs</option>
                     </select>
                   </div>
+                  <div className="queuefilters">
+                    <label htmlFor="queue-order">Order</label>
+                    <select
+                      id="queue-order"
+                      aria-label="Queue order"
+                      disabled={busy || opening}
+                      value={queueOrder}
+                      onChange={(e) => {
+                        leaveOpened();
+                        QO(e.target.value);
+                        O(0);
+                        I(0);
+                      }}
+                    >
+                      <option value="score">Highest score</option>
+                      <option value="disagreement">
+                        Model / rule disagreement
+                      </option>
+                    </select>
+                  </div>
                   <div className="queuelabel">
-                    CANDIDATE PAIRS <span>SCORE ↓</span>
+                    CANDIDATE PAIRS{" "}
+                    <span>
+                      {queueOrder === "score" ? "SCORE ↓" : "DISAGREEMENT ↓"}
+                    </span>
                   </div>
                   {error && pairs.length === 0 ? (
                     <div className="empty">
@@ -448,9 +556,12 @@ function App() {
                       <button
                         key={x.id}
                         disabled={busy}
-                        aria-pressed={i === selected}
-                        className={"pair " + (i === selected ? "chosen" : "")}
+                        aria-pressed={!opened && i === selected}
+                        className={
+                          "pair " + (!opened && i === selected ? "chosen" : "")
+                        }
                         onClick={() => {
+                          leaveOpened();
                           I(i);
                           N("");
                           E("");
@@ -466,7 +577,9 @@ function App() {
                         </div>
                         <b>
                           {x.score.toFixed(3)}
-                          <small>model score</small>
+                          <small>
+                            {x.model ? "model score" : "rule score"}
+                          </small>
                         </b>
                         <em
                           className={x.status === "REVIEW" ? "tag" : "tag done"}
@@ -480,6 +593,7 @@ function App() {
                     <button
                       disabled={busy || loading || offset === 0}
                       onClick={() => {
+                        leaveOpened();
                         O(Math.max(0, offset - 40));
                         I(0);
                       }}
@@ -492,6 +606,7 @@ function App() {
                     <button
                       disabled={busy || loading || offset + 40 >= total}
                       onClick={() => {
+                        leaveOpened();
                         O(offset + 40);
                         I(0);
                       }}
@@ -501,6 +616,19 @@ function App() {
                   </div>
                 </section>
                 <section className="comparison">
+                  {opened && (
+                    <div className="openedpair">
+                      Opened directly · {opened.id.slice(0, 8)}
+                      <button onClick={leaveOpened} disabled={busy}>
+                        Return to queue
+                      </button>
+                    </div>
+                  )}
+                  {opening && (
+                    <div role="status" className="notice">
+                      Opening pair…
+                    </div>
+                  )}
                   {p ? (
                     <>
                       <div className="comparehead">
@@ -549,9 +677,19 @@ function App() {
                           </article>
                         ))}
                       </div>
-                      <div className="evidence">
+                      {impact?.evidence && (
+                        <PairAssessment
+                          evidence={impact.evidence}
+                          blockers={impact.merge_blockers}
+                          model={p.model}
+                          score={p.score}
+                          baseline={p.baseline}
+                        />
+                      )}
+                      <details className="evidence">
+                        <summary>Numeric features · proposal snapshot</summary>
                         <div className="sectiontitle">
-                          <h3>Observed evidence</h3>
+                          <h3>Pair feature values</h3>
                           <span className="muted">
                             Shared feature pipeline · v1
                           </span>
@@ -575,7 +713,7 @@ function App() {
                           probability. Shared brand or phone does not prove
                           branch identity.
                         </div>
-                      </div>
+                      </details>
                       <div className="reviewaction">
                         <label htmlFor="evidence-note">Decision evidence</label>
                         <textarea
@@ -616,10 +754,13 @@ function App() {
                           <button
                             disabled={
                               busy ||
+                              opening ||
                               loading ||
                               !impact?.context_version ||
+                              impact.pair_id !== p.id ||
                               p.source_stale ||
-                              p.status !== "REVIEW"
+                              p.status !== "REVIEW" ||
+                              !!impact?.merge_blockers?.length
                             }
                             className="primary"
                             onClick={() => decide("SAME")}
@@ -630,8 +771,10 @@ function App() {
                           <button
                             disabled={
                               busy ||
+                              opening ||
                               loading ||
                               !impact?.context_version ||
+                              impact.pair_id !== p.id ||
                               p.source_stale ||
                               p.status !== "REVIEW"
                             }
@@ -644,8 +787,10 @@ function App() {
                           <button
                             disabled={
                               busy ||
+                              opening ||
                               loading ||
                               !impact?.context_version ||
+                              impact.pair_id !== p.id ||
                               p.source_stale ||
                               p.status !== "REVIEW"
                             }
@@ -798,6 +943,37 @@ function App() {
           )}
           {page === "Entities" && (
             <>
+              <div className="exportbar">
+                <div>
+                  <h2>Canonical directory</h2>
+                  <p className="muted">
+                    Download up to 500 reviewed entities. JSON preserves field
+                    provenance; CSV provides a flat directory.
+                  </p>
+                </div>
+                <div className="actions">
+                  <button
+                    className="secondary"
+                    disabled={
+                      exporting || !entities.some((e) => !e.needs_review)
+                    }
+                    onClick={() => downloadEntities("json")}
+                  >
+                    <Download size={14} />
+                    JSON
+                  </button>
+                  <button
+                    className="secondary"
+                    disabled={
+                      exporting || !entities.some((e) => !e.needs_review)
+                    }
+                    onClick={() => downloadEntities("csv")}
+                  >
+                    <Download size={14} />
+                    CSV
+                  </button>
+                </div>
+              </div>
               <div className="cards">
                 {entities.length === 0 && (
                   <div className="panel empty">
@@ -845,7 +1021,24 @@ function App() {
                 {history.map((h) => (
                   <div className="history" key={h.id}>
                     <strong>{h.kind}</strong>
-                    <span>{h.rationale}</span>
+                    <div className="historydetail">
+                      <strong>
+                        {h.record_names?.join(" ↔ ") || h.pair_id}
+                      </strong>
+                      <p>{h.rationale}</p>
+                      <time dateTime={new Date(h.created * 1000).toISOString()}>
+                        {new Date(h.created * 1000).toLocaleString()} ·{" "}
+                        {h.pair_id.slice(0, 8)}
+                      </time>
+                    </div>
+                    <button
+                      className="secondary"
+                      disabled={busy || opening}
+                      onClick={() => openPair(h.pair_id)}
+                    >
+                      <ExternalLink size={14} />
+                      Open pair
+                    </button>
                     <button
                       className="secondary"
                       disabled={!!h.undone}

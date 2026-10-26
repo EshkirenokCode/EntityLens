@@ -151,15 +151,10 @@ def decide(pair_id, kind, rationale, revision, key, context_version=None):
             and review_context(c, pair_id)["context_version"] != context_version
         ):
             raise ValueError("Group changed since preview: refresh before confirming")
-        existing_groups, _ = components(c)
         if kind == "SAME":
-            for g in existing_groups:
-                if p["left"] in g or p["right"] in g:
-                    _, changed = reviewed_members(c, g, rs)
-                    if changed:
-                        raise ValueError(
-                            "Group contains changed source records: undo and reevaluate the affected links first"
-                        )
+            blockers = merge_blockers(c, pair_id)
+            if blockers:
+                raise ValueError(blockers[0]["message"])
         ident = str(uuid.uuid4())
         c.execute(
             "INSERT INTO decisions(id,pair_id,kind,rationale,created,idempotency) VALUES(?,?,?,?,?,?)",
@@ -171,46 +166,6 @@ def decide(pair_id, kind, rationale, revision, key, context_version=None):
                 (ident, rid, json.dumps(rs[rid])),
             )
         groups, _ = components(c)
-        if kind == "SAME":
-            from concord.features import distance
-
-            for group in groups:
-                if p["left"] not in group:
-                    continue
-                for i, a in enumerate(group):
-                    for b in group[i + 1 :]:
-                        d = distance(rs[a], rs[b])
-                        import re
-
-                        ha = re.match(
-                            r"^\s*\d+(?:-\d+)?[a-z]?\b",
-                            (rs[a].get("address") or "").casefold(),
-                        )
-                        hb = re.match(
-                            r"^\s*\d+(?:-\d+)?[a-z]?\b",
-                            (rs[b].get("address") or "").casefold(),
-                        )
-                        if ha and hb and ha[0] != hb[0]:
-                            raise ValueError(
-                                "Conflicting street numbers: resolve source evidence before merging branches"
-                            )
-                        unit_pattern = r"(?:\b(?:suite|unit|ste|apt|apartment)\.?\s*#?\s*|#\s*)([a-z0-9-]+)\b"
-                        ua = re.search(
-                            unit_pattern, (rs[a].get("address") or "").casefold()
-                        )
-                        ub = re.search(
-                            unit_pattern, (rs[b].get("address") or "").casefold()
-                        )
-                        if ua and ub and ua[1] != ub[1]:
-                            raise ValueError(
-                                "Conflicting units: shared building does not establish branch identity"
-                            )
-                        if d is not None and d > 300:
-                            raise ValueError(
-                                "Conflicting coordinates exceed the location safety limit"
-                            )
-        if any(len(g) > 12 for g in groups):
-            raise ValueError("Group exceeds review safety limit")
         p["status"] = kind
         c.execute(
             "UPDATE pairs SET payload=?,revision=revision+1 WHERE id=?",
@@ -286,6 +241,7 @@ def review_context(c, pair_id):
         ).encode()
     ).hexdigest()
     return dict(
+        pair_id=pair_id,
         context_version=version,
         members=[
             dict(
@@ -298,6 +254,7 @@ def review_context(c, pair_id):
         ],
         record_versions=pair["versions"],
         policy="Full group checked for cannot-link and location conflicts on confirmation",
+        merge_blockers=merge_blockers(c, pair_id),
     )
 
 
@@ -341,3 +298,62 @@ def reviewed_members(c, group, current):
             )
             changed.add(rid)
     return historical, sorted(changed)
+
+
+def merge_blockers(c, pair_id):
+    from concord.identity import location_blockers
+
+    row = c.execute("SELECT payload FROM pairs WHERE id=?", (pair_id,)).fetchone()
+    if not row:
+        raise KeyError(pair_id)
+    pair = json.loads(row["payload"])
+    groups, rs = components(c)
+    affected = sorted(
+        {
+            k
+            for group in groups
+            if pair["left"] in group or pair["right"] in group
+            for k in group
+        }
+    )
+    blockers = []
+    if pair["versions"] != [rs[pair["left"]]["version"], rs[pair["right"]]["version"]]:
+        blockers.append(
+            dict(
+                code="source_changed",
+                message="Source changed: proposal requires reevaluation",
+                records=[pair["left"], pair["right"]],
+            )
+        )
+    for group in groups:
+        if pair["left"] in group or pair["right"] in group:
+            _, changed = reviewed_members(c, group, rs)
+            if changed:
+                blockers.append(
+                    dict(
+                        code="group_changed",
+                        message="Group contains changed source records: undo and reevaluate the affected links first",
+                        records=changed,
+                    )
+                )
+    for row in c.execute(
+        "SELECT p.payload FROM pairs p JOIN decisions d ON p.id=d.pair_id WHERE d.undone=0 AND d.kind='DIFFERENT'"
+    ):
+        p = json.loads(row["payload"])
+        if p["left"] in affected and p["right"] in affected:
+            blockers.append(
+                dict(
+                    code="cannot_link",
+                    message="Cannot-link conflict across the proposed group",
+                    records=[p["left"], p["right"]],
+                )
+            )
+    if len(affected) > 12:
+        blockers.append(
+            dict(
+                code="group_size",
+                message="Group exceeds review safety limit",
+                records=affected,
+            )
+        )
+    return blockers + location_blockers([rs[k] for k in affected])

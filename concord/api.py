@@ -1,7 +1,11 @@
-import json, uuid, time
+import json, uuid, time, csv, io
+from typing import Literal
+from datetime import datetime, timezone
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import Response, JSONResponse
+from concord.evidence import describe_pair
 from pydantic import BaseModel, Field
 from concord import store
 
@@ -37,19 +41,29 @@ def status():
 def pairs(
     offset: int = Query(0, ge=0),
     limit: int = Query(40, ge=1, le=100),
-    q: str = "",
+    q: str = Query("", max_length=200),
     state: str = "",
+    order: Literal["score", "disagreement"] = "score",
 ):
     with store.connect() as c:
-        where = "WHERE (?='' OR json_extract(p.payload,'$.status')=?) AND (?='' OR instr(casefold(json_extract(a.payload,'$.name') || ' ' || json_extract(b.payload,'$.name')),casefold(?))>0)"
+        c.execute("BEGIN")
+        where = "WHERE (?='' OR json_extract(p.payload,'$.status')=?) AND (?='' OR instr(casefold(coalesce(json_extract(a.payload,'$.name'),'') || ' ' || coalesce(json_extract(b.payload,'$.name'),'') || ' ' || coalesce(json_extract(a.payload,'$.address'),'') || ' ' || coalesce(json_extract(b.payload,'$.address'),'') || ' ' || p.id),casefold(?))>0)"
         join = " FROM pairs p JOIN records a ON a.id=json_extract(p.payload,'$.left') JOIN records b ON b.id=json_extract(p.payload,'$.right') "
         params = (state, state, q, q)
         total = c.execute("SELECT count(*)" + join + where, params).fetchone()[0]
+        ordering = (
+            "json_extract(p.payload,'$.score') DESC,coalesce(json_extract(p.payload,'$.baseline'),0) DESC,p.id"
+            if order == "score"
+            else "CASE WHEN json_extract(p.payload,'$.model') IS NOT NULL THEN abs(json_extract(p.payload,'$.score')-coalesce(json_extract(p.payload,'$.baseline'),json_extract(p.payload,'$.score'))) ELSE 0 END DESC,"
+            + "json_extract(p.payload,'$.score') DESC,p.id"
+        )
         result = c.execute(
             "SELECT p.*,a.payload AS a,b.payload AS b"
             + join
             + where
-            + " ORDER BY json_extract(p.payload,'$.score') DESC,coalesce(json_extract(p.payload,'$.baseline'),0) DESC,p.id LIMIT ? OFFSET ?",
+            + " ORDER BY "
+            + ordering
+            + " LIMIT ? OFFSET ?",
             params + (limit, offset),
         )
         return dict(
@@ -66,6 +80,34 @@ def pairs(
                 for r in result
             ],
         )
+
+
+def pair_payload(c, ident):
+    row = c.execute("SELECT * FROM pairs WHERE id=?", (ident,)).fetchone()
+    if not row:
+        raise HTTPException(404, "Proposal not found")
+    p = json.loads(row["payload"])
+    records = [
+        json.loads(
+            c.execute("SELECT payload FROM records WHERE id=?", (p[k],)).fetchone()[0]
+        )
+        for k in ["left", "right"]
+    ]
+    return dict(
+        **p,
+        revision=row["revision"],
+        a=records[0],
+        b=records[1],
+        source_stale=p["versions"] != [r["version"] for r in records],
+        evidence=describe_pair(*records, p),
+    )
+
+
+@app.get("/api/pairs/{ident}")
+def pair_detail(ident: str):
+    with store.connect() as c:
+        c.execute("BEGIN")
+        return pair_payload(c, ident)
 
 
 @app.post("/api/pairs/{ident}/decision")
@@ -88,6 +130,7 @@ def decision(ident: str, d: Decision):
 @app.get("/api/entities")
 def entities():
     with store.connect() as c:
+        c.execute("BEGIN")
         groups, rs = store.components(c)
         out = []
         for g in groups:
@@ -124,12 +167,32 @@ def entities():
 @app.get("/api/history")
 def history():
     with store.connect() as c:
-        return [
-            dict(r)
-            for r in c.execute(
-                "SELECT * FROM decisions ORDER BY created DESC LIMIT 100"
-            )
-        ]
+        c.execute("BEGIN")
+        output = []
+        for row in c.execute(
+            "SELECT d.*,p.payload AS pair_payload FROM decisions d JOIN pairs p ON p.id=d.pair_id ORDER BY d.created DESC,d.id LIMIT 100"
+        ):
+            d = dict(row)
+            p = json.loads(d.pop("pair_payload"))
+            reviewed = {
+                r["record_id"]: json.loads(r["payload"])
+                for r in c.execute(
+                    "SELECT record_id,payload FROM decision_records WHERE decision_id=?",
+                    (d["id"],),
+                )
+            }
+            d["record_names"] = [
+                reviewed[k].get("name", "Unnamed place")
+                if k in reviewed
+                else "Historical record unavailable"
+                for k in [p["left"], p["right"]]
+            ]
+            d["record_versions"] = [
+                reviewed[k]["version"] if k in reviewed else None
+                for k in [p["left"], p["right"]]
+            ]
+            output.append(d)
+        return output
 
 
 @app.post("/api/decisions/{ident}/undo")
@@ -222,15 +285,75 @@ def retry_job(ident: str):
     return {"status": "queued"}
 
 
+def spreadsheet_value(value):
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return value
+    text = "" if value is None else str(value)
+    if text.startswith(("\t", "\r", "\n")) or text.lstrip().startswith(
+        ("=", "+", "-", "@")
+    ):
+        return "'" + text
+    return text
+
+
 @app.get("/api/export")
-def export(limit: int = Query(100, ge=1, le=500)):
+def export(
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+    format: Literal["json", "csv"] = "json",
+):
     snapshot = entities()
-    return {
-        "entities": [e for e in snapshot if not e["needs_review"]][:limit],
-        "excluded_changed_entities": sum(e["needs_review"] for e in snapshot),
-        "format": "json",
-        "policy": "local analyst decisions; source provenance included",
+    safe = sorted((e for e in snapshot if not e["needs_review"]), key=lambda e: e["id"])
+    page = safe[offset : offset + limit]
+    excluded = sum(e["needs_review"] for e in snapshot)
+    headers = {
+        "Content-Disposition": f'attachment; filename="concord-entities.{format}"',
+        "X-Export-Total": str(len(safe)),
+        "X-Export-Excluded": str(excluded),
     }
+    if format == "csv":
+        stream = io.StringIO(newline="")
+        writer = csv.writer(stream)
+        writer.writerow(
+            [
+                "entity_id",
+                "name",
+                "address",
+                "phone",
+                "latitude",
+                "longitude",
+                "member_count",
+                "source_record_ids",
+            ]
+        )
+        for entity in page:
+            values = [
+                entity["id"],
+                *[
+                    entity["fields"][field]["value"]
+                    for field in ["name", "address", "phone", "lat", "lon"]
+                ],
+                len(entity["members"]),
+                " | ".join(r["id"] for r in entity["members"]),
+            ]
+            writer.writerow([spreadsheet_value(v) for v in values])
+        return Response(
+            stream.getvalue(), media_type="text/csv; charset=utf-8", headers=headers
+        )
+    return JSONResponse(
+        dict(
+            entities=page,
+            excluded_changed_entities=excluded,
+            total=len(safe),
+            offset=offset,
+            limit=limit,
+            next_offset=offset + limit if offset + limit < len(safe) else None,
+            format="json",
+            generated_at=datetime.now(timezone.utc).isoformat(),
+            policy="local analyst decisions; source provenance included",
+        ),
+        headers=headers,
+    )
 
 
 @app.get("/api/monitoring")
@@ -257,7 +380,10 @@ def impact(ident: str):
         row = c.execute("SELECT payload FROM pairs WHERE id=?", (ident,)).fetchone()
         if not row:
             raise HTTPException(404, "Proposal not found")
-        return store.review_context(c, ident)
+        c.execute("BEGIN")
+        context = store.review_context(c, ident)
+        context["evidence"] = pair_payload(c, ident)["evidence"]
+        return context
 
 
 if Path("web/dist").exists():

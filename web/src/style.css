@@ -1125,3 +1125,160 @@ footer > span:last-child {
   color: #39465b;
   font-size: 11px;
 }
+.observations {
+  margin-top: 22px;
+  padding: 15px;
+  border: 1px solid #dfe5ef;
+  border-radius: 4px;
+  background: #fafbfd;
+}
+.assessmenthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.assessmenthead span {
+  font:
+    10px ui-monospace,
+    monospace;
+  white-space: nowrap;
+  color: #52698d;
+}
+.observations ul {
+  list-style: none;
+  padding: 0;
+  margin: 13px 0 0;
+}
+.observations li {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 8px 0;
+  color: #57667c;
+}
+.observations li svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.observations .signal svg {
+  color: #428066;
+}
+.observations .warning svg {
+  color: #a27936;
+}
+.observations .missing {
+  color: #7d8798;
+}
+.mergeblocked {
+  border-left: 2px solid #bd7f5d;
+  background: #fff5ef;
+  padding: 10px 12px;
+  margin-top: 12px;
+  font-size: 10px;
+  line-height: 1.8;
+  color: #8a5d45;
+}
+.mergeblocked strong {
+  font-size: 11px;
+}
+.mergeblocked p {
+  margin-top: 5px;
+}
+.mergeblocked small {
+  font-size: 9px;
+  margin-top: 7px;
+}
+.evidence > summary {
+  cursor: pointer;
+  font-size: 11px;
+  color: #60708b;
+  padding-bottom: 12px;
+}
+.openedpair {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 17px;
+  border: 1px solid #d9e2f0;
+  border-radius: 4px;
+  background: #f4f7fd;
+  color: #5f7398;
+  font-size: 10px;
+}
+.openedpair button {
+  border: 0;
+  background: none;
+  color: #355bc5;
+  font-size: 10px;
+  cursor: pointer;
+}
+.exportbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 19px;
+}
+.exportbar .actions {
+  margin: 0;
+}
+.exportbar p {
+  margin-top: 6px;
+}
+.historydetail {
+  flex: 1;
+  min-width: 0;
+}
+.historydetail > strong {
+  display: block;
+  font-size: 11px;
+  color: #4d5c73;
+}
+.historydetail > p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #738096;
+  margin-top: 5px;
+}
+.historydetail time {
+  display: block;
+  font:
+    9px ui-monospace,
+    monospace;
+  color: #929aaa;
+  margin-top: 8px;
+}
+@media (max-width: 720px) {
+  .exportbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .historydetail {
+    flex-basis: 65%;
+  }
+  .assessmenthead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+.scorecompare {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 10px;
+  color: #7b879c;
+  font-size: 10px;
+}
+.scorecompare b {
+  font:
+    10px ui-monospace,
+    monospace;
+  color: #4d6287;
+  margin-left: 4px;
+}

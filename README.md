@@ -23,8 +23,8 @@ Raw catalogs and model binaries are generated locally and excluded from Git. Pre
 ## Workflow
 
 - **Sources & Runs:** inspect immutable snapshot manifests and data quality, queue matching, inspect durable job status, cancel and retry.
-- **Review:** searchable candidate queue, original records, lexical/address/spatial evidence, coordinate schematic and evidence notes. J/K navigates candidates.
-- **Entities:** canonical fields with all member source values and provenance, conflicts and reversible decisions.
+- **Review:** search names, addresses and pair IDs; prioritize model/rule disagreement; inspect distance, missing evidence and full-group blockers before deciding. Pair permalinks survive reload. J/K navigates the queue.
+- **Entities:** canonical fields, immutable named decision history, direct pair inspection, undo and bounded JSON/CSV downloads with provenance and spreadsheet-safe strings. Changed entities stay out of exports.
 - **Evaluation:** rule baseline, trained classifier and train-only SVD feature ablation with explicit label and split limitations.
 
 Review commits transactionally with idempotency keys, immutable source-version checks, cannot-link enforcement across entire connected groups and conservative branch guards. Undo preserves history. Imports and training are administrative local commands. This workspace has no public authentication or visitor isolation; it should stay on loopback.
@@ -52,3 +52,5 @@ Data attribution: NYC Department of Health and Mental Hygiene; Overture Maps Fou
 ## Walkthrough and design
 
 [Testing guide and five use cases](docs/testing-guide.md) · [Design research](docs/design-research.md) · [Polish audit](docs/polish-audit.md)
+
+[Latest analyst workflow improvements](docs/workflow-improvements-2026-10-26.md)

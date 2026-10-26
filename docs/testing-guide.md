@@ -38,3 +38,10 @@ Docker/Compose and public deployment remain unverified. Hosted CI needs a GitHub
 ## Additional regression checks — 2026-10-25
 
 Review defaults to Needs review. Same/Different/Unsure filters expose processed pairs. A saved decision removes its pair from pending results; Undo restores it. Completed jobs reject retry and cancel (409). Unicode search supports casefold matching. A changed group context rejects an old confirmation, and changed source data cannot silently alter reviewed canonical values or enter normal export. The worker rejects results if records change during matching, retires removed pending candidates and refuses publication after lease expiry.
+
+## New analyst tools — 2026-10-26
+
+- Open Review and inspect What the sources tell us. Distance is in meters; agreement is supporting evidence, not match probability. Expand Numeric features when needed.
+- Select Model / rule disagreement in Queue order to inspect conflicting scores. Search a street address or a pair ID as well as names. Blocked merges explain the actual shared safety checks before submission.
+- Entities history shows the reviewed names and timestamp. Open pair works even when the pair is absent from the pending page. Reload the #pair=ID URL to return to it, or use Return to queue.
+- Download JSON for full field provenance or CSV for a flat directory. Downloads include up to 500 eligible entities; changed entities are excluded. The export API supports offset/limit pagination for larger local directories. CSV formula-like strings are escaped as text.
