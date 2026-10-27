@@ -33,7 +33,7 @@ export function PairAssessment({
   return (
     <section className="observations" aria-label="Pair assessment">
       <div className="assessmenthead">
-        <h3>What the sources tell us</h3>
+        <h3>Evidence summary</h3>
         <span>
           {evidence.distance_m === null
             ? "Distance unavailable"

@@ -13,23 +13,18 @@ import {
   Undo2,
   MapPin,
   ChevronRight,
-  Activity,
   RefreshCw,
   Download,
   ExternalLink,
+  ArrowLeft,
+  Inbox,
 } from "lucide-react";
 import "./style.css";
 import { PairAssessment, type GroupImpact } from "./components/PairAssessment";
-type RecordRow = {
-  id: string;
-  name: string;
-  address: string;
-  source: string;
-  lat: number | null;
-  lon: number | null;
-  phone: string;
-  version: string;
-};
+import {
+  RecordComparison,
+  type SourceRecord as RecordRow,
+} from "./components/RecordComparison";
 type Pair = {
   id: string;
   a: RecordRow;
@@ -96,6 +91,7 @@ function pinStyle(a: RecordRow, b: RecordRow) {
 const fmt = (n: number) => new Intl.NumberFormat("en").format(n || 0);
 function App() {
   const [page, setPage] = useState("Review"),
+    [mobileInspect, MI] = useState(false),
     [status, S] = useState<any>({}),
     [pairs, P] = useState<Pair[]>([]),
     [selected, I] = useState(0),
@@ -114,6 +110,7 @@ function App() {
     [busy, B] = useState(false),
     [loading, L] = useState(true),
     [note, N] = useState(""),
+    [noteError, NE] = useState(false),
     [toast, V] = useState(""),
     [entities, EN] = useState<any[]>([]),
     [history, H] = useState<any[]>([]),
@@ -153,6 +150,7 @@ function App() {
       const item = await api(`pairs/${encodeURIComponent(ident)}`);
       if (request !== pairRequest.current) return;
       OP(item);
+      MI(true);
       E("");
       window.history.replaceState(
         null,
@@ -168,6 +166,7 @@ function App() {
   const leaveOpened = () => {
     ++pairRequest.current;
     OP(null);
+    MI(false);
     OPENING(false);
     window.history.replaceState(
       null,
@@ -210,6 +209,8 @@ function App() {
       EX(false);
     }
   }
+  const comparisonScroll = useRef<HTMLDivElement>(null);
+  const queueList = useRef<HTMLDivElement>(null);
   const requestId = useRef(0);
   const pendingDecision = useRef<{ signature: string; key: string } | null>(
     null,
@@ -259,7 +260,14 @@ function App() {
   const p = opened || pairs[selected];
   useEffect(() => {
     N("");
+    NE(false);
+    if (comparisonScroll.current) comparisonScroll.current.scrollTop = 0;
   }, [p?.id]);
+  useEffect(() => {
+    queueList.current
+      ?.querySelector<HTMLElement>('[aria-pressed="true"]')
+      ?.scrollIntoView({ block: "nearest" });
+  }, [selected, pairs, opened]);
   useEffect(() => {
     let current = true;
     IM(null);
@@ -293,7 +301,8 @@ function App() {
       return;
     }
     if (!note.trim()) {
-      E("Add an evidence note before recording your decision.");
+      NE(true);
+      document.getElementById("evidence-note")?.focus();
       return;
     }
     B(true);
@@ -341,13 +350,13 @@ function App() {
     return () => window.removeEventListener("keydown", key);
   }, [pairs, busy, opening, opened, loading, page]);
   return (
-    <div className="app">
+    <div className={`app ${page === "Review" ? "reviewpage" : ""}`}>
       <aside className="sidebar">
         <a className="brand" href="/">
           <div className="brandmark">
             <Layers size={22} />
           </div>
-          concord<span>WORKBENCH</span>
+          Concord<span>WORKBENCH</span>
         </a>
         <div className="workspace">
           <span className="avatar">NY</span>
@@ -358,7 +367,7 @@ function App() {
         <p className="navlabel">WORKSPACE</p>
         <nav>
           {[
-            ["Review", GitMerge],
+            ["Review", Inbox],
             ["Sources & Runs", Database],
             ["Entities", Layers],
             ["Evaluation", ChartNoAxesCombined],
@@ -372,11 +381,20 @@ function App() {
               onClick={() => setPage(name)}
             >
               <Icon size={18} />
-              {name}
-              {name === "Review" && <b>{fmt(total)}</b>}
+              <span>{name === "Review" ? "Review queue" : name}</span>
             </button>
           ))}
         </nav>
+        <div className="datasetnav">
+          <p className="navlabel">CONNECTED SOURCES</p>
+          <div>
+            <span className="sourceinitial">N</span>NYC DOHMH
+          </div>
+          <div>
+            <span className="sourceinitial">O</span>Overture Places
+          </div>
+          <small>{fmt(status.records)} records · Lower Manhattan</small>
+        </div>
         <div className="sidebarbottom">
           <span className="dot" /> Local workspace
           <small>Review-only decision policy</small>
@@ -391,21 +409,20 @@ function App() {
       <main>
         <header>
           <div className="breadcrumb">
-            Workspace <ChevronRight size={13} />
+            Lower Manhattan <ChevronRight size={13} />
             <strong>{page}</strong>
           </div>
           <span className="local">
-            <span className="dot" /> LOCAL ENVIRONMENT
+            <span className="dot" /> REVIEW ONLY
           </span>
         </header>
         <div className="content">
           <div className="title">
             <div>
-              <div className="eyebrow">ENTITY RESOLUTION / NYC</div>
-              <h1>{page === "Review" ? "Resolve places" : page}</h1>
+              <h1>{page === "Review" ? "Review queue" : page}</h1>
               <p>
                 {page === "Review"
-                  ? "Compare independent records and record a traceable decision."
+                  ? "Decide which records belong to the same physical place."
                   : page === "Evaluation"
                     ? "Measured results, reproducible runs, explicit limitations."
                     : page === "Entities"
@@ -413,7 +430,11 @@ function App() {
                       : "Independent catalogs. Immutable snapshots. Traceable runs."}
               </p>
             </div>
-            <button className="secondary" onClick={refresh}>
+            <button
+              className="secondary"
+              aria-label="Refresh"
+              onClick={refresh}
+            >
               <RefreshCw size={15} />
               Refresh
             </button>
@@ -436,98 +457,105 @@ function App() {
               {toast} ×
             </div>
           )}
-          <div className="stats">
-            {[
-              [
-                "Source records",
-                fmt(status.records),
-                "Across 2 independent catalogs",
-              ],
-              [
-                "Candidate pairs",
-                fmt(status.pairs),
-                "Spatial + lexical retrieval",
-              ],
-              [
-                "Reviewed pairs",
-                fmt(status.decisions),
-                "Evidence-backed decisions",
-              ],
-              ["Decision policy", "Review only", "Independent gold required"],
-            ].map(([a, b, c]) => (
-              <div key={a}>
-                <small>{a}</small>
-                <strong>{b}</strong>
-                <span>{c}</span>
-              </div>
-            ))}
-          </div>
+          {page !== "Review" && (
+            <div className="stats">
+              {[
+                [
+                  "Source records",
+                  fmt(status.records),
+                  "Across 2 independent catalogs",
+                ],
+                [
+                  "Candidate pairs",
+                  fmt(status.pairs),
+                  "Spatial + lexical retrieval",
+                ],
+                [
+                  "Reviewed pairs",
+                  fmt(status.decisions),
+                  "Evidence-backed decisions",
+                ],
+                ["Decision policy", "Review only", "Independent gold required"],
+              ].map(([a, b, c]) => (
+                <div key={a}>
+                  <small>{a}</small>
+                  <strong>{b}</strong>
+                  <span>{c}</span>
+                </div>
+              ))}
+            </div>
+          )}
           {page === "Review" && (
             <>
-              <div className="sectiontitle">
-                <h2>
-                  Review queue <span>{fmt(total)} pairs</span>
-                </h2>
-                <span className="muted">Navigate with J / K</span>
-              </div>
-              <div className="workbench">
-                <section className="queue">
-                  <div className="search">
-                    <Search size={16} />
-                    <input
-                      disabled={busy}
-                      aria-label="Search places"
-                      maxLength={200}
-                      placeholder="Name, address or pair ID…"
-                      value={q}
-                      onChange={(e) => {
-                        leaveOpened();
-                        Q(e.target.value);
-                        O(0);
-                        I(0);
-                      }}
-                    />
+              <div className={`workbench ${mobileInspect ? "inspecting" : ""}`}>
+                <section className="queue" aria-label="Candidate queue">
+                  <div className="queueheading">
+                    <h2>
+                      Candidates <span>{fmt(total)}</span>
+                    </h2>
+                    <span className="keyhint">
+                      <kbd>J</kbd>
+                      <kbd>K</kbd>
+                    </span>
                   </div>
-                  <div className="queuefilters">
-                    <label htmlFor="queue-status">Show</label>
-                    <select
-                      id="queue-status"
-                      aria-label="Review status"
-                      disabled={busy}
-                      value={queueState}
-                      onChange={(e) => {
-                        leaveOpened();
-                        QS(e.target.value);
-                        O(0);
-                        I(0);
-                      }}
-                    >
-                      <option value="REVIEW">Needs review</option>
-                      <option value="SAME">Same place</option>
-                      <option value="DIFFERENT">Different places</option>
-                      <option value="UNCERTAIN">Unsure</option>
-                      <option value="">All pairs</option>
-                    </select>
-                  </div>
-                  <div className="queuefilters">
-                    <label htmlFor="queue-order">Order</label>
-                    <select
-                      id="queue-order"
-                      aria-label="Queue order"
-                      disabled={busy || opening}
-                      value={queueOrder}
-                      onChange={(e) => {
-                        leaveOpened();
-                        QO(e.target.value);
-                        O(0);
-                        I(0);
-                      }}
-                    >
-                      <option value="score">Highest score</option>
-                      <option value="disagreement">
-                        Model / rule disagreement
-                      </option>
-                    </select>
+                  <div className="queuetools">
+                    <div className="search">
+                      <Search size={16} />
+                      <input
+                        disabled={busy}
+                        aria-label="Search places"
+                        maxLength={200}
+                        placeholder="Name, address or pair ID…"
+                        value={q}
+                        onChange={(e) => {
+                          leaveOpened();
+                          Q(e.target.value);
+                          O(0);
+                          I(0);
+                        }}
+                      />
+                    </div>
+                    <div className="queuefilters">
+                      <label htmlFor="queue-status">Show</label>
+                      <select
+                        id="queue-status"
+                        aria-label="Review status"
+                        disabled={busy}
+                        value={queueState}
+                        onChange={(e) => {
+                          leaveOpened();
+                          QS(e.target.value);
+                          O(0);
+                          I(0);
+                        }}
+                      >
+                        <option value="REVIEW">Needs review</option>
+                        <option value="SAME">Same place</option>
+                        <option value="DIFFERENT">Different places</option>
+                        <option value="UNCERTAIN">Unsure</option>
+                        <option value="">All pairs</option>
+                      </select>
+                    </div>
+                    <div className="queuefilters">
+                      <label htmlFor="queue-order">Order</label>
+                      <select
+                        id="queue-order"
+                        aria-label="Queue order"
+                        disabled={busy || opening}
+                        value={queueOrder}
+                        onChange={(e) => {
+                          leaveOpened();
+                          QO(e.target.value);
+                          O(0);
+                          I(0);
+                        }}
+                      >
+                        <option value="score">Highest score</option>
+                        <option value="disagreement">
+                          Model / rule disagreement
+                        </option>
+                      </select>
+                    </div>
                   </div>
                   <div className="queuelabel">
                     CANDIDATE PAIRS{" "}
@@ -535,60 +563,70 @@ function App() {
                       {queueOrder === "score" ? "SCORE ↓" : "DISAGREEMENT ↓"}
                     </span>
                   </div>
-                  {error && pairs.length === 0 ? (
-                    <div className="empty">
-                      Data unavailable.
-                      <small>Check the local service and retry.</small>
-                    </div>
-                  ) : loading ? (
-                    <div className="empty">Loading records…</div>
-                  ) : pairs.length === 0 ? (
-                    <div className="empty">
-                      No matching pairs.
-                      <small>
-                        {status.records
-                          ? "Try another search or review-status filter."
-                          : "Import and process sources to begin."}
-                      </small>
-                    </div>
-                  ) : (
-                    pairs.map((x, i) => (
-                      <button
-                        key={x.id}
-                        disabled={busy}
-                        aria-pressed={!opened && i === selected}
-                        className={
-                          "pair " + (!opened && i === selected ? "chosen" : "")
-                        }
-                        onClick={() => {
-                          leaveOpened();
-                          I(i);
-                          N("");
-                          E("");
-                        }}
-                      >
-                        <div>
-                          <strong>{x.a.name}</strong>
-                          <span>{x.b.name}</span>
-                          <small>
-                            <MapPin size={11} />
-                            {x.a.address}
-                          </small>
-                        </div>
-                        <b>
-                          {x.score.toFixed(3)}
-                          <small>
-                            {x.model ? "model score" : "rule score"}
-                          </small>
-                        </b>
-                        <em
-                          className={x.status === "REVIEW" ? "tag" : "tag done"}
+                  <div className="pairlist" aria-busy={loading} ref={queueList}>
+                    {error && pairs.length === 0 ? (
+                      <div className="empty">
+                        Data unavailable.
+                        <small>Check the local service and retry.</small>
+                      </div>
+                    ) : loading ? (
+                      <div className="empty">Loading records…</div>
+                    ) : pairs.length === 0 ? (
+                      <div className="empty">
+                        No matching pairs.
+                        <small>
+                          {status.records
+                            ? "Try another search or review-status filter."
+                            : "Import and process sources to begin."}
+                        </small>
+                      </div>
+                    ) : (
+                      pairs.map((x, i) => (
+                        <button
+                          key={x.id}
+                          disabled={busy}
+                          aria-pressed={!opened && i === selected}
+                          className={
+                            "pair " +
+                            (!opened && i === selected ? "chosen" : "")
+                          }
+                          onClick={() => {
+                            leaveOpened();
+                            I(i);
+                            MI(true);
+                            N("");
+                            E("");
+                          }}
                         >
-                          {x.status === "REVIEW" ? "Needs review" : x.status}
-                        </em>
-                      </button>
-                    ))
-                  )}
+                          <div>
+                            <strong title={x.a.name}>{x.a.name}</strong>
+                            <span title={x.b.name}>{x.b.name}</span>
+                            <small>
+                              <MapPin size={11} />
+                              {x.a.address}
+                            </small>
+                          </div>
+                          <b>
+                            {x.score.toFixed(3)}
+                            <small>
+                              {x.model ? "model score" : "rule score"}
+                            </small>
+                          </b>
+                          {x.status !== "REVIEW" && (
+                            <em
+                              className={
+                                x.status === "REVIEW" ? "tag" : "tag done"
+                              }
+                            >
+                              {x.status === "REVIEW"
+                                ? "Needs review"
+                                : x.status}
+                            </em>
+                          )}
+                        </button>
+                      ))
+                    )}
+                  </div>
                   <div className="pagination">
                     <button
                       disabled={busy || loading || offset === 0}
@@ -615,241 +653,268 @@ function App() {
                     </button>
                   </div>
                 </section>
-                <section className="comparison">
-                  {opened && (
-                    <div className="openedpair">
-                      Opened directly · {opened.id.slice(0, 8)}
-                      <button onClick={leaveOpened} disabled={busy}>
-                        Return to queue
-                      </button>
-                    </div>
-                  )}
-                  {opening && (
-                    <div role="status" className="notice">
-                      Opening pair…
-                    </div>
-                  )}
-                  {p ? (
-                    <>
-                      <div className="comparehead">
-                        <span className="tag">
-                          {p.status === "REVIEW" ? "Needs review" : p.status}
-                        </span>
-                        <span className="muted">Pair {p.id.slice(0, 8)}</span>
+                <section className="comparison" aria-label="Selected pair">
+                  <div className="comparisonbody" ref={comparisonScroll}>
+                    <button className="mobileback" onClick={() => MI(false)}>
+                      <ArrowLeft size={15} />
+                      Back to candidates
+                    </button>
+                    {opened && (
+                      <div className="openedpair">
+                        Opened directly · {opened.id.slice(0, 8)}
+                        <button onClick={leaveOpened} disabled={busy}>
+                          Return to queue
+                        </button>
                       </div>
-                      {p.source_stale && (
-                        <div role="alert" className="alert">
-                          Source records changed. Run matching again before
-                          making a decision.
-                        </div>
-                      )}
-                      <h2>Same place, different records?</h2>
-                      <p className="muted">
-                        Confirm the physical location, including branch and
-                        address.
-                      </p>
-                      <div className="recordgrid">
-                        {[p.a, p.b].map((r, i) => (
-                          <article key={r.id}>
-                            <div className="sourcebadge">
-                              <span>{i ? "B" : "A"}</span>
-                              {r.source === "nyc"
-                                ? "NYC DOHMH"
-                                : "Overture Places"}
-                            </div>
-                            <h3>{r.name}</h3>
-                            {[
-                              ["Address", r.address],
-                              ["Business phone", r.phone || "Not provided"],
-                              [
-                                "Coordinates",
-                                hasCoordinates(r)
-                                  ? `${r.lat.toFixed(5)}, ${r.lon.toFixed(5)}`
-                                  : "Not provided",
-                              ],
-                              ["Record version", r.version],
-                            ].map(([a, b]) => (
-                              <div className="field" key={a}>
-                                <label>{a}</label>
-                                <p>{b}</p>
-                              </div>
-                            ))}
-                          </article>
-                        ))}
+                    )}
+                    {opening && (
+                      <div role="status" className="notice">
+                        Opening pair…
                       </div>
-                      {impact?.evidence && (
-                        <PairAssessment
-                          evidence={impact.evidence}
-                          blockers={impact.merge_blockers}
-                          model={p.model}
-                          score={p.score}
-                          baseline={p.baseline}
-                        />
-                      )}
-                      <details className="evidence">
-                        <summary>Numeric features · proposal snapshot</summary>
-                        <div className="sectiontitle">
-                          <h3>Pair feature values</h3>
-                          <span className="muted">
-                            Shared feature pipeline · v1
+                    )}
+                    {p ? (
+                      <>
+                        <div className="comparehead">
+                          <span className="tag">
+                            {p.status === "REVIEW" ? "Needs review" : p.status}
                           </span>
+                          <span className="muted">Pair {p.id.slice(0, 8)}</span>
                         </div>
-                        {[
-                          ["Name similarity", p.features[0]],
-                          ["Address similarity", p.features[2]],
-                          ["Spatial proximity", p.features[4]],
-                        ].map(([a, b]) => (
-                          <div className="feature" key={String(a)}>
-                            <span>{a}</span>
-                            <div>
-                              <i style={{ width: `${Number(b) * 100}%` }} />
-                            </div>
-                            <b>{(Number(b) * 100).toFixed(0)}%</b>
-                          </div>
-                        ))}
-                        <div className="hint">
-                          <HelpCircle size={15} />
-                          Similarity is a model score, not a calibrated
-                          probability. Shared brand or phone does not prove
-                          branch identity.
-                        </div>
-                      </details>
-                      <div className="reviewaction">
-                        <label htmlFor="evidence-note">Decision evidence</label>
-                        <textarea
-                          id="evidence-note"
-                          disabled={busy}
-                          maxLength={2000}
-                          placeholder="What supports your decision? Cite the address, branch or independent evidence…"
-                          value={note}
-                          onChange={(e) => N(e.target.value)}
-                        />
-                        {previewError && (
+                        {p.source_stale && (
                           <div role="alert" className="alert">
-                            Group preview unavailable: {previewError}
-                            <button onClick={() => PE((i) => i + 1)}>
-                              Retry preview
-                            </button>
+                            Source records changed. Run matching again before
+                            making a decision.
                           </div>
                         )}
-                        <details className="impactpreview">
+                        <h2>{p.a.name}</h2>
+                        <p className="muted">
+                          Compare source fields, then record your decision.
+                        </p>
+                        <RecordComparison a={p.a} b={p.b} />
+                        {impact?.evidence && (
+                          <PairAssessment
+                            evidence={impact.evidence}
+                            blockers={impact.merge_blockers}
+                            model={p.model}
+                            score={p.score}
+                            baseline={p.baseline}
+                          />
+                        )}
+                        <details className="evidence">
                           <summary>
-                            Group impact ·{" "}
-                            {impact ? impact.members.length : "…"} source
-                            records
+                            Numeric features · proposal snapshot
                           </summary>
-                          {impact?.members.map((r: any) => (
-                            <p key={r.id}>
-                              {r.name} · {r.address}
-                              <small>{r.id}</small>
-                            </p>
+                          <div className="sectiontitle">
+                            <h3>Pair feature values</h3>
+                            <span className="muted">
+                              Shared feature pipeline · v1
+                            </span>
+                          </div>
+                          {[
+                            ["Name similarity", p.features[0]],
+                            ["Address similarity", p.features[2]],
+                            ["Spatial proximity", p.features[4]],
+                          ].map(([a, b]) => (
+                            <div className="feature" key={String(a)}>
+                              <span>{a}</span>
+                              <div>
+                                <i style={{ width: `${Number(b) * 100}%` }} />
+                              </div>
+                              <b>{(Number(b) * 100).toFixed(0)}%</b>
+                            </div>
                           ))}
+                          <div className="hint">
+                            <HelpCircle size={15} />
+                            Similarity is a model score, not a calibrated
+                            probability. Shared brand or phone does not prove
+                            branch identity.
+                          </div>
                         </details>
-                        <div className="impact">
-                          <GitMerge size={14} />
-                          Same place joins the full connected group after
-                          cannot-link checks. Sources remain intact.
+                        <div className="reviewaction">
+                          <div className="decisionheading">
+                            <label htmlFor="evidence-note">Your decision</label>
+                            <span className="muted">
+                              Evidence note required
+                            </span>
+                          </div>
+                          <textarea
+                            id="evidence-note"
+                            disabled={busy}
+                            maxLength={2000}
+                            aria-label="Decision evidence"
+                            aria-required="true"
+                            aria-invalid={noteError}
+                            aria-describedby={
+                              noteError ? "note-error" : undefined
+                            }
+                            placeholder="Add evidence: address, branch or independent confirmation…"
+                            value={note}
+                            onChange={(e) => {
+                              N(e.target.value);
+                              NE(false);
+                            }}
+                          />
+                          {noteError && (
+                            <p
+                              id="note-error"
+                              role="alert"
+                              className="field-error"
+                            >
+                              Add an evidence note before recording your
+                              decision.
+                            </p>
+                          )}
+                          {previewError && (
+                            <div role="alert" className="alert">
+                              Group preview unavailable: {previewError}
+                              <button onClick={() => PE((i) => i + 1)}>
+                                Retry preview
+                              </button>
+                            </div>
+                          )}
+                          <details className="impactpreview">
+                            <summary>
+                              Group impact ·{" "}
+                              {impact ? impact.members.length : "…"} source
+                              records
+                            </summary>
+                            {impact?.members.map((r: any) => (
+                              <p key={r.id}>
+                                {r.name} · {r.address}
+                                <small>{r.id}</small>
+                              </p>
+                            ))}
+                          </details>
+                          <div className="impact">
+                            <GitMerge size={14} />
+                            Same place joins the full connected group after
+                            cannot-link checks. Sources remain intact.
+                          </div>
                         </div>
-                        <div className="actions">
-                          <button
-                            disabled={
-                              busy ||
-                              opening ||
-                              loading ||
-                              !impact?.context_version ||
-                              impact.pair_id !== p.id ||
-                              p.source_stale ||
-                              p.status !== "REVIEW" ||
-                              !!impact?.merge_blockers?.length
-                            }
-                            className="primary"
-                            onClick={() => decide("SAME")}
-                          >
-                            <Check size={16} />
-                            Same place
-                          </button>
-                          <button
-                            disabled={
-                              busy ||
-                              opening ||
-                              loading ||
-                              !impact?.context_version ||
-                              impact.pair_id !== p.id ||
-                              p.source_stale ||
-                              p.status !== "REVIEW"
-                            }
-                            className="secondary"
-                            onClick={() => decide("DIFFERENT")}
-                          >
-                            <X size={16} />
-                            Different places
-                          </button>
-                          <button
-                            disabled={
-                              busy ||
-                              opening ||
-                              loading ||
-                              !impact?.context_version ||
-                              impact.pair_id !== p.id ||
-                              p.source_stale ||
-                              p.status !== "REVIEW"
-                            }
-                            className="secondary"
-                            onClick={() => decide("UNCERTAIN")}
-                          >
-                            <HelpCircle size={16} />
-                            Unsure
-                          </button>
-                        </div>
+                      </>
+                    ) : (
+                      <div className="empty">
+                        Select a pair to inspect source evidence.
                       </div>
-                    </>
-                  ) : (
-                    <div className="empty">
-                      Select a pair to inspect source evidence.
+                    )}
+                    {p && (
+                      <details className="locationdetails">
+                        <summary>Location & review checklist</summary>
+                        <div className="locationbody">
+                          <h3>Location context</h3>
+                          <div className="map">
+                            <div className="mapgrid" />
+                            {p &&
+                              hasCoordinates(p.a) &&
+                              hasCoordinates(p.b) && (
+                                <>
+                                  <i
+                                    className="pin pinA"
+                                    style={pinStyle(p.a, p.b)}
+                                  >
+                                    A
+                                  </i>
+                                  <i
+                                    className="pin pinB"
+                                    style={pinStyle(p.b, p.a)}
+                                  >
+                                    B
+                                  </i>
+                                </>
+                              )}
+                            <span className="mapcaption">
+                              RELATIVE COORDINATES
+                            </span>
+                          </div>
+                          <p className="mapnote">
+                            Coordinate schematic · no external tiles
+                            <small>
+                              Use source coordinates for exact location.
+                            </small>
+                          </p>
+                          <hr />
+                          <h3>Resolution checklist</h3>
+                          <ul>
+                            <li>Same physical address?</li>
+                            <li>Separate branches nearby?</li>
+                            <li>Renaming or relocation?</li>
+                            <li>Enough independent evidence?</li>
+                          </ul>
+                          <h3>Provenance</h3>
+                          <p className="muted">
+                            Immutable source versions are checked on every
+                            confirmation. Conflicting group constraints block a
+                            merge.
+                          </p>
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                  {p && (
+                    <div className="decisiondock">
+                      <p>
+                        {busy
+                          ? "Saving decision…"
+                          : p.status !== "REVIEW"
+                            ? "Decision recorded · undo from Entities"
+                            : note.trim()
+                              ? "Evidence note added"
+                              : "Add an evidence note before deciding"}
+                      </p>
+                      <div className="actions">
+                        <button
+                          disabled={
+                            busy ||
+                            opening ||
+                            loading ||
+                            !impact?.context_version ||
+                            impact.pair_id !== p.id ||
+                            p.source_stale ||
+                            p.status !== "REVIEW" ||
+                            !!impact?.merge_blockers?.length
+                          }
+                          className="primary"
+                          onClick={() => decide("SAME")}
+                        >
+                          <Check size={16} />
+                          Same place
+                        </button>
+                        <button
+                          disabled={
+                            busy ||
+                            opening ||
+                            loading ||
+                            !impact?.context_version ||
+                            impact.pair_id !== p.id ||
+                            p.source_stale ||
+                            p.status !== "REVIEW"
+                          }
+                          className="secondary"
+                          onClick={() => decide("DIFFERENT")}
+                        >
+                          <X size={16} />
+                          Different places
+                        </button>
+                        <button
+                          disabled={
+                            busy ||
+                            opening ||
+                            loading ||
+                            !impact?.context_version ||
+                            impact.pair_id !== p.id ||
+                            p.source_stale ||
+                            p.status !== "REVIEW"
+                          }
+                          className="secondary"
+                          onClick={() => decide("UNCERTAIN")}
+                        >
+                          <HelpCircle size={16} />
+                          Unsure
+                        </button>
+                      </div>
                     </div>
                   )}
                 </section>
-                <aside className="context">
-                  <h3>Location context</h3>
-                  <div className="map">
-                    <div className="mapgrid" />
-                    {p && hasCoordinates(p.a) && hasCoordinates(p.b) && (
-                      <>
-                        <i className="pin pinA" style={pinStyle(p.a, p.b)}>
-                          A
-                        </i>
-                        <i className="pin pinB" style={pinStyle(p.b, p.a)}>
-                          B
-                        </i>
-                      </>
-                    )}
-                    <span className="mapcaption">RELATIVE COORDINATES</span>
-                  </div>
-                  <p className="mapnote">
-                    Coordinate schematic · no external tiles
-                    <small>Use source coordinates for exact location.</small>
-                  </p>
-                  <hr />
-                  <h3>Resolution checklist</h3>
-                  <ul>
-                    <li>Same physical address?</li>
-                    <li>Separate branches nearby?</li>
-                    <li>Renaming or relocation?</li>
-                    <li>Enough independent evidence?</li>
-                  </ul>
-                  <div className="callout">
-                    <Activity size={18} />
-                    <strong>Insufficient evidence?</strong>
-                    <p>
-                      Choose Unsure when the sources cannot establish identity.
-                    </p>
-                  </div>
-                  <h3>Provenance</h3>
-                  <p className="muted">
-                    Immutable source versions are checked on every confirmation.
-                    Conflicting group constraints block a merge.
-                  </p>
-                </aside>
               </div>
             </>
           )}

@@ -4,6 +4,8 @@ An ML workbench for comparing independent place catalogs, reviewing uncertain ma
 
 Concord currently runs locally on real Lower Manhattan data: **2,222 NYC DOHMH establishments**, **4,896 Overture food and drink places**, and **66,660 candidate pairs**. A CPU-trained gradient boosting classifier ranks pairs. Analysts retain control over every link.
 
+![Concord review queue and source comparison](docs/screenshots/redesign-desktop-2026-10-27.png)
+
 ## Run locally
 
 Requires Python 3.12+ and Node 22+; no paid services or API keys.
@@ -23,7 +25,7 @@ Raw catalogs and model binaries are generated locally and excluded from Git. Pre
 ## Workflow
 
 - **Sources & Runs:** inspect immutable snapshot manifests and data quality, queue matching, inspect durable job status, cancel and retry.
-- **Review:** search names, addresses and pair IDs; prioritize model/rule disagreement; inspect distance, missing evidence and full-group blockers before deciding. Pair permalinks survive reload. J/K navigates the queue.
+- **Review:** search names, addresses and pair IDs; prioritize model/rule disagreement; inspect distance, missing evidence and full-group blockers before deciding. Source fields align in one comparison table; decision actions stay visible. Pair permalinks survive reload. J/K navigates the queue. Narrow windows use separate queue and detail views.
 - **Entities:** canonical fields, immutable named decision history, direct pair inspection, undo and bounded JSON/CSV downloads with provenance and spreadsheet-safe strings. Changed entities stay out of exports.
 - **Evaluation:** rule baseline, trained classifier and train-only SVD feature ablation with explicit label and split limitations.
 
@@ -54,3 +56,5 @@ Data attribution: NYC Department of Health and Mental Hygiene; Overture Maps Fou
 [Testing guide and five use cases](docs/testing-guide.md) · [Design research](docs/design-research.md) · [Polish audit](docs/polish-audit.md)
 
 [Latest analyst workflow improvements](docs/workflow-improvements-2026-10-26.md)
+
+[Workbench redesign and product references](docs/redesign-2026-10-27.md)

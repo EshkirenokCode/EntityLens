@@ -41,7 +41,15 @@ Review defaults to Needs review. Same/Different/Unsure filters expose processed 
 
 ## New analyst tools — 2026-10-26
 
-- Open Review and inspect What the sources tell us. Distance is in meters; agreement is supporting evidence, not match probability. Expand Numeric features when needed.
+- Open Review and inspect Evidence summary. Distance is in meters; agreement is supporting evidence, not match probability. Expand Numeric features when needed.
 - Select Model / rule disagreement in Queue order to inspect conflicting scores. Search a street address or a pair ID as well as names. Blocked merges explain the actual shared safety checks before submission.
 - Entities history shows the reviewed names and timestamp. Open pair works even when the pair is absent from the pending page. Reload the #pair=ID URL to return to it, or use Return to queue.
 - Download JSON for full field provenance or CSV for a flat directory. Downloads include up to 500 eligible entities; changed entities are excluded. The export API supports offset/limit pagination for larger local directories. CSV formula-like strings are escaped as text.
+
+## Redesigned workbench — 2026-10-27
+
+On desktop, candidates and detail scroll independently. Use J/K to move through the current page; the selected row should remain visible and the new detail should start at its heading. Decision buttons stay at the bottom of the detail panel. An empty evidence note focuses its input and shows a field error without recording a decision.
+
+Source records now share comparison rows. `Values differ` is a display hint, not an identity verdict. Expand Source identifiers & versions for lineage, Numeric features for proposal details, and Location & review checklist for the schematic.
+
+On a narrow window, select a candidate to open its detail. Back to candidates restores the queue with the same search and filters. A direct history link opens the detail immediately; Return to queue restores queue navigation. Verify empty search and processed-status filters as well as the initial populated screen.

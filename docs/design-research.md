@@ -14,3 +14,7 @@ Implemented a neutral white/slate palette with blue selection, amber review stat
 Desktop preserves queue/comparison/context panels. Intermediate widths omit secondary context. Narrow views stack the queue above records, preserve accessible navigation labels, and stack A/B fields below 440px. This is a purpose-built implementation; no template assets or screenshots were copied into the product.
 
 Portfolio judgment: suitable to demonstrate an honest local ML engineering prototype and review workflow. It is not evidence of production accuracy, independent benchmark quality, authenticated public deployment or production-scale infrastructure. Pair UI screenshots with the methodology and explicit limitations.
+
+## Redesign — 2026-10-27
+
+The previous neutral workbench still repeated context and used independent cards for source fields. The new implementation uses a persistent inbox, a field-aligned comparison table, a decision footer and a separate narrow-screen detail view. Current shipped-product references, access boundaries and implementation decisions are documented in [the redesign record](redesign-2026-10-27.md). The earlier blue treatment described above is historical.

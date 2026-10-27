@@ -49,3 +49,9 @@ Reproduced and corrected source-version races, stale canonical values, mutable g
 Added structured source evidence with exact distance, missing data, model/rule disagreement and shared preview/confirmation blockers. Added disagreement triage and address/pair-ID search, immutable named decision history, direct pair inspection and reloadable local permalinks. Added bounded JSON/CSV exports with provenance, changed-entity exclusion and spreadsheet formula protection. New assessment rendering is a typed component; numeric features are optional detail.
 
 46 tests and production build pass. Browser checked blockers, downloads, history reopening, permalink reload and undo. The test confirmation was undone. Classifier, labels and ML metrics remain unchanged. Details: docs/workflow-improvements-2026-10-26.md.
+
+## Workbench redesign — 2026-10-27
+
+Rebuilt the review layout around shipped-product references: Linear Triage, Attio record comparison and Front's inbox gallery in Nicelydone. Added a field-aligned source table with explicit display differences and expandable identifiers, independent desktop panes, a persistent decision footer, narrow queue/detail navigation and field-level evidence validation. Replaced the old blue card styling with a warm neutral interface and updated the other pages consistently. Model behavior and data remain unchanged. Reference access and design decisions: docs/redesign-2026-10-27.md.
+
+Validation: 46 regression tests and production build pass. Desktop 1280 × 720 and narrow 536 × 988 browser checks passed for navigation, field validation, empty search, blockers, identifiers and direct links. Current screenshots are in docs/screenshots/redesign-*. No model retraining or new review decisions.
