@@ -8,10 +8,10 @@ FROM python:3.12-slim
 WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-COPY concord/ concord/
+COPY entitylens/ entitylens/
 COPY scripts/ scripts/
 COPY reports/ reports/
 COPY data/manifests/ data/manifests/
 COPY --from=web /web/dist/ web/dist/
-ENV CONCORD_DB=/state/concord.db
-CMD ["uvicorn","concord.api:app","--host","0.0.0.0","--port","8765"]
+ENV ENTITYLENS_DB=/state/entitylens.db
+CMD ["uvicorn","entitylens.api:app","--host","0.0.0.0","--port","8765"]

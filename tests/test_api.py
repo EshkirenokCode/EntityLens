@@ -1,6 +1,6 @@
 import json, sqlite3
 import pytest
-from concord import store
+from entitylens import store
 
 
 def test_page_and_literal_search(client):

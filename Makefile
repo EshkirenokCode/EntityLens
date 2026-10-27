@@ -11,9 +11,9 @@ train:
 web:
 	cd web && npm run build
 run:
-	.venv/bin/python -m uvicorn concord.api:app --host 127.0.0.1 --port 8765
+	.venv/bin/python -m uvicorn entitylens.api:app --host 127.0.0.1 --port 8765
 worker:
-	.venv/bin/python -m concord.worker
+	.venv/bin/python -m entitylens.worker
 test:
 	.venv/bin/python -m pytest -q
 	cd web && npm run build

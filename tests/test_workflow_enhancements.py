@@ -1,7 +1,7 @@
 import csv, io, json
 import pytest
-from concord import store
-from concord.evidence import describe_pair
+from entitylens import store
+from entitylens.evidence import describe_pair
 
 
 def decide(client, kind="SAME", key="enhancement-review"):
@@ -84,7 +84,7 @@ def test_csv_neutralizes_untrusted_spreadsheet_formulas(client, name):
     rows = list(csv.DictReader(io.StringIO(response.text)))
     assert rows[0]["name"] == "'" + name
     assert rows[0]["longitude"] == "-74.0"
-    assert response.headers["content-disposition"].endswith('"concord-entities.csv"')
+    assert response.headers["content-disposition"].endswith('"entitylens-entities.csv"')
 
 
 def test_export_is_bounded_and_preserves_json_provenance(client):

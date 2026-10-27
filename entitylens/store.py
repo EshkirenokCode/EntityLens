@@ -3,7 +3,7 @@ from pathlib import Path
 from contextlib import contextmanager
 
 ROOT = Path(__file__).resolve().parents[1]
-DB = os.environ.get("CONCORD_DB", str(ROOT / "concord-v1.db"))
+DB = os.environ.get("ENTITYLENS_DB", str(ROOT / "entitylens-v1.db"))
 
 
 @contextmanager
@@ -301,7 +301,7 @@ def reviewed_members(c, group, current):
 
 
 def merge_blockers(c, pair_id):
-    from concord.identity import location_blockers
+    from entitylens.identity import location_blockers
 
     row = c.execute("SELECT payload FROM pairs WHERE id=?", (pair_id,)).fetchone()
     if not row:

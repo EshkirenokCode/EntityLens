@@ -40,7 +40,7 @@ Do not retrain/tune from the current holdout and call it a new sealed test. Firs
 
 ## Correctness follow-up — 2026-10-25
 
-Reproduced and corrected source-version races, stale canonical values, mutable group previews, pending-candidate retirement, address suffix/unit conflicts, terminal job action responses, Unicode search, invalid geometry handling and pending review navigation. Immutable decision_records and required review context fingerprints added. Changed entities retain reviewed values and are excluded from normal export. Local startup unified with make dev and project-relative concord-v1.db.
+Reproduced and corrected source-version races, stale canonical values, mutable group previews, pending-candidate retirement, address suffix/unit conflicts, terminal job action responses, Unicode search, invalid geometry handling and pending review navigation. Immutable decision_records and required review context fingerprints added. Changed entities retain reviewed values and are excluded from normal export. Local startup unified with make dev and project-relative entitylens-v1.db.
 
 33 tests and the production build pass; feature compatibility checked across all 66,660 real pairs without retraining. Browser confirmed submit → queue advance → canonical entity → undo. Full evidence: docs/correctness-audit-2026-10-25.md. Independent model quality and deployment limitations remain unchanged.
 
@@ -55,3 +55,7 @@ Added structured source evidence with exact distance, missing data, model/rule d
 Rebuilt the review layout around shipped-product references: Linear Triage, Attio record comparison and Front's inbox gallery in Nicelydone. Added a field-aligned source table with explicit display differences and expandable identifiers, independent desktop panes, a persistent decision footer, narrow queue/detail navigation and field-level evidence validation. Replaced the old blue card styling with a warm neutral interface and updated the other pages consistently. Model behavior and data remain unchanged. Reference access and design decisions: docs/redesign-2026-10-27.md.
 
 Validation: 46 regression tests and production build pass. Desktop 1280 × 720 and narrow 536 × 988 browser checks passed for navigation, field validation, empty search, blockers, identifiers and direct links. Current screenshots are in docs/screenshots/redesign-*. No model retraining or new review decisions.
+
+## EntityLens naming — 2026-10-27
+
+Unified product branding, Python package, imports, environment variables, frontend package, exports, container commands and documentation under EntityLens. Copied the existing SQLite workspace through the backup API into entitylens-v1.db and retained the original database. Added migration coverage for committed WAL data, history preservation, missing sources and overwrite refusal. 48 tests and the frontend build pass; existing trained artifacts and historical experiment provenance are preserved without retraining.

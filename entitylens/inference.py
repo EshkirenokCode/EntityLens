@@ -1,5 +1,5 @@
 import numpy as np
-from concord.features import SCHEMA
+from entitylens.features import SCHEMA
 
 
 def score_pairs(pairs, records, bundle):

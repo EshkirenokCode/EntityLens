@@ -17,7 +17,7 @@ def main():
                 f"Port {args.port} is already in use; stop the existing local instance or choose --port."
             )
     env = os.environ.copy()
-    env.setdefault("CONCORD_DB", str(ROOT / "concord-v1.db"))
+    env.setdefault("ENTITYLENS_DB", str(ROOT / "entitylens-v1.db"))
     env.setdefault("OMP_NUM_THREADS", "2")
     env.setdefault("OPENBLAS_NUM_THREADS", "2")
     stopped = False
@@ -32,13 +32,13 @@ def main():
         [
             "-m",
             "uvicorn",
-            "concord.api:app",
+            "entitylens.api:app",
             "--host",
             "127.0.0.1",
             "--port",
             str(args.port),
         ],
-        ["-m", "concord.worker"],
+        ["-m", "entitylens.worker"],
     ]
     children = []
     try:
@@ -52,7 +52,7 @@ def main():
                 )
             )
         print(
-            f"Concord: http://127.0.0.1:{args.port} | Database: {env['CONCORD_DB']}",
+            f"EntityLens: http://127.0.0.1:{args.port} | Database: {env['ENTITYLENS_DB']}",
             flush=True,
         )
         while not stopped:

@@ -16,7 +16,7 @@ from sklearn.metrics import (
 )
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
-from concord.features import SCHEMA, NAMES
+from entitylens.features import SCHEMA, NAMES
 
 SEED = 42
 start = time.time()
@@ -201,8 +201,8 @@ report = dict(
         str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in [
             ROOT / "scripts/train.py",
-            ROOT / "concord/features.py",
-            ROOT / "concord/inference.py",
+            ROOT / "entitylens/features.py",
+            ROOT / "entitylens/inference.py",
         ]
     },
     data_manifests={
@@ -228,7 +228,7 @@ report = dict(
 )
 print(json.dumps(report, indent=2))
 # Score every candidate using exactly the trained feature serialization.
-from concord.inference import score_pairs
+from entitylens.inference import score_pairs
 
 score_pairs(pairs, rs, bundle)
 (ROOT / "data/processed/pairs.json").write_text(json.dumps(pairs))

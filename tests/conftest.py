@@ -1,14 +1,14 @@
 import json
 import pytest
 from fastapi.testclient import TestClient
-from concord import store
+from entitylens import store
 
 
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     monkeypatch.setattr(store, "DB", str(tmp_path / "api.db"))
     monkeypatch.setattr(store, "bootstrap", store.init)
-    from concord.api import app
+    from entitylens.api import app
 
     store.init()
     with store.connect() as c:

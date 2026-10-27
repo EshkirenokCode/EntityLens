@@ -2,9 +2,9 @@
 
 import time, json, uuid, pickle
 from pathlib import Path
-from concord import store
-from concord.features import candidates
-from concord.inference import score_pairs
+from entitylens import store
+from entitylens.features import candidates
+from entitylens.inference import score_pairs
 
 store.init()
 

@@ -199,7 +199,7 @@ function App() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `concord-entities.${format}`;
+      link.download = `entitylens-entities.${format}`;
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       V("Export downloaded. Changed entities are excluded.");
@@ -356,7 +356,7 @@ function App() {
           <div className="brandmark">
             <Layers size={22} />
           </div>
-          Concord<span>WORKBENCH</span>
+          EntityLens<span>WORKBENCH</span>
         </a>
         <div className="workspace">
           <span className="avatar">NY</span>
@@ -1181,7 +1181,7 @@ function App() {
             </>
           )}
           <footer>
-            Concord <span>Entity resolution workspace</span>
+            EntityLens <span>Entity resolution workspace</span>
             <span>NYC DOHMH · Overture Maps Foundation</span>
           </footer>
         </div>

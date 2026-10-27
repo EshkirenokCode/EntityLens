@@ -2,7 +2,7 @@ import sys, pathlib, json, hashlib, math
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from concord.features import candidates
+from entitylens.features import candidates
 
 
 def load(source):

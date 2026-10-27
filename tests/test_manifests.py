@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
-from concord.features import SCHEMA
-from concord.inference import score_pairs
+from entitylens.features import SCHEMA
+from entitylens.inference import score_pairs
 import pytest
 
 

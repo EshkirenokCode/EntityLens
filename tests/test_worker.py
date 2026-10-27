@@ -1,11 +1,11 @@
 import json, time
-from concord import store
+from entitylens import store
 
 
 def test_lease_recovery_and_idempotent_publication(tmp_path, monkeypatch):
     monkeypatch.setattr(store, "DB", str(tmp_path / "worker.db"))
     store.init()
-    from concord.worker import tick
+    from entitylens.worker import tick
 
     with store.connect() as c:
         c.execute(
@@ -23,7 +23,7 @@ def test_lease_recovery_and_idempotent_publication(tmp_path, monkeypatch):
 def test_expired_final_attempt_fails_instead_of_sticking(tmp_path, monkeypatch):
     monkeypatch.setattr(store, "DB", str(tmp_path / "exhausted.db"))
     store.init()
-    from concord.worker import tick
+    from entitylens.worker import tick
 
     with store.connect() as c:
         c.execute(

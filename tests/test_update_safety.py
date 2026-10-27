@@ -1,6 +1,6 @@
 import json, time
 import pytest
-from concord import store
+from entitylens import store
 
 
 @pytest.fixture
@@ -62,7 +62,7 @@ def test_canonical_keeps_reviewed_values_when_source_changes(sample):
 
 
 def test_worker_rejects_record_change_during_matching(sample, monkeypatch):
-    from concord import worker
+    from entitylens import worker
 
     def racing(left, right):
         with store.connect() as c:
@@ -116,7 +116,7 @@ def test_changed_member_blocks_extending_old_group(sample):
 
 
 def test_worker_retires_removed_candidates(sample, monkeypatch):
-    from concord import worker
+    from entitylens import worker
 
     monkeypatch.setattr(worker, "candidates", lambda *args: iter([]))
     monkeypatch.setattr(worker, "score_pairs", lambda *args: None)
@@ -134,7 +134,7 @@ def test_worker_retires_removed_candidates(sample, monkeypatch):
 
 
 def test_worker_does_not_publish_after_lease_expiry(sample, monkeypatch):
-    from concord import worker
+    from entitylens import worker
 
     moment = [1000.0]
     monkeypatch.setattr(worker.time, "time", lambda: moment[0])

@@ -2,7 +2,7 @@
 
 import re
 from itertools import combinations
-from concord.features import distance
+from entitylens.features import distance
 
 
 def location_blockers(records):

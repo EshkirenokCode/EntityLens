@@ -4,7 +4,7 @@ import json, pathlib, sys, time
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from concord import store
+from entitylens import store
 
 store.init()
 records = json.loads((ROOT / "data/processed/records.json").read_text())

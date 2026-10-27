@@ -1,4 +1,4 @@
-name: Concord checks
+name: EntityLens checks
 on: [push, pull_request]
 jobs:
   verify:

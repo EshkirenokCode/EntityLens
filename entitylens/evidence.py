@@ -1,8 +1,8 @@
 """Human-readable observations, separate from model confidence or ground truth."""
 
 from rapidfuzz.fuzz import ratio
-from concord.features import norm, distance
-from concord.identity import location_blockers
+from entitylens.features import norm, distance
+from entitylens.identity import location_blockers
 
 
 def describe_pair(a, b, proposal):

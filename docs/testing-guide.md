@@ -8,7 +8,7 @@ The trained model learned silver supervision. Its perfect agreement with heurist
 
 ## Quick test without downloading again
 
-Open http://127.0.0.1:8765 . Existing local data has 7,118 records and 66,660 candidates. If the process stopped, launch `make dev` to start the API and worker together. Set the same CONCORD_DB for both processes. The current verified session uses `CONCORD_DB=concord-v1.db`.
+Open http://127.0.0.1:8765 . Existing local data has 7,118 records and 66,660 candidates. If the process stopped, launch `make dev` to start the API and worker together. Set the same ENTITYLENS_DB for both processes. The current verified session uses `ENTITYLENS_DB=entitylens-v1.db`.
 
 1. Review: search for `New Shun Wei`, compare names, street address, business phone and coordinates. Expand Group impact. An empty evidence note must prevent saving.
 2. Add a provisional evidence note and confirm Same place. Entities must show source values and lineage. Refresh: the decision persists.

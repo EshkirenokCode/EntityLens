@@ -5,11 +5,11 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import Response, JSONResponse
-from concord.evidence import describe_pair
+from entitylens.evidence import describe_pair
 from pydantic import BaseModel, Field
-from concord import store
+from entitylens import store
 
-app = FastAPI(title="Concord", version="0.1.0")
+app = FastAPI(title="EntityLens", version="0.1.0")
 store.bootstrap()
 
 
@@ -307,7 +307,7 @@ def export(
     page = safe[offset : offset + limit]
     excluded = sum(e["needs_review"] for e in snapshot)
     headers = {
-        "Content-Disposition": f'attachment; filename="concord-entities.{format}"',
+        "Content-Disposition": f'attachment; filename="entitylens-entities.{format}"',
         "X-Export-Total": str(len(safe)),
         "X-Export-Excluded": str(excluded),
     }

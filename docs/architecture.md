@@ -1,6 +1,6 @@
-# Concord architecture
+# EntityLens architecture
 
-Concord resolves physical food establishments across independent catalogs. A location is the identity boundary; brands and legal entities are out of scope.
+EntityLens resolves physical food establishments across independent catalogs. A location is the identity boundary; brands and legal entities are out of scope.
 
 ## Product and delivery
 

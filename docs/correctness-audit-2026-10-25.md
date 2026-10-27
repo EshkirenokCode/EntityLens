@@ -17,7 +17,7 @@ The previous passing suite did not exercise source updates during jobs, changing
 - Review defaults to Needs review with explicit processed-state filters. Saving a decision advances the pending queue; Undo restores the pair. Empty last pages are corrected after the queue shrinks.
 - Decisions are disabled until the group preview loads. Preview failures have a retry state. Navigation is locked while saving, and unchanged network retries reuse the same idempotency key.
 - Source changes are visible on proposals and canonical entities. The misleading raw-value Conflict badge is now Source values differ.
-- Local API and worker were stopped during the audit. The combined make dev launcher now starts both with the same project-relative concord-v1.db, supervises failures and stops children on exit. Existing concord.db files are preserved and selectable through CONCORD_DB.
+- Local API and worker were stopped during the audit. The combined make dev launcher now starts both with the same project-relative entitylens-v1.db, supervises failures and stops children on exit. Existing entitylens.db files are preserved and selectable through ENTITYLENS_DB.
 
 ## Verification
 

@@ -2,7 +2,7 @@
 
 ## Local launch
 
-Python 3.12+, Node 22+. `make setup`, `make data`, `make train`, `make web`, `make dev`. The combined launcher supervises API and worker with the same database; Ctrl+C stops both. Separate `make run` / `make worker` remain available. The default database is project-relative concord-v1.db; older concord.db files are preserved and can be selected explicitly with CONCORD_DB. UI: http://127.0.0.1:8765 . OpenAPI: /docs. No cloud account or API key required. The downloader pins Overture release 2026-10-21.0. The NYC endpoint is live: a new download is a new snapshot, not a guarantee of reproducing an older payload. Preserve original hashed files to reproduce the exact experiment.
+Python 3.12+, Node 22+. `make setup`, `make data`, `make train`, `make web`, `make dev`. The combined launcher supervises API and worker with the same database; Ctrl+C stops both. Separate `make run` / `make worker` remain available. The default database is project-relative entitylens-v1.db; older entitylens.db files are preserved and can be selected explicitly with ENTITYLENS_DB. UI: http://127.0.0.1:8765 . OpenAPI: /docs. No cloud account or API key required. The downloader pins Overture release 2026-10-21.0. The NYC endpoint is live: a new download is a new snapshot, not a guarantee of reproducing an older payload. Preserve original hashed files to reproduce the exact experiment.
 
 SQLite WAL is the implemented storage backend, shared by one API and one worker on one machine. SQL schema creation is idempotent in store.init. PostgreSQL/PostGIS, SQLAlchemy migrations and distributed workers remain future deployment work; they are not implemented support. Docker Compose is provided for the implemented SQLite deployment and has not been executed in this environment because Docker is unavailable.
 
@@ -26,7 +26,7 @@ Run `scripts/registry.py register`, then `evaluate --version VERSION`, then `act
 
 /api/monitoring exposes score histogram, review count and job errors. /api/status exposes input missingness. Drift is a signal, not evidence of accuracy loss. Do not automatically retrain or promote on drift. HTTP measurements are in reports/http-benchmark.json; they do not measure batch throughput or user time savings.
 
-Back up SQLite using Python sqlite3.Connection.backup while live, or stop API/worker and copy database together with raw manifests, snapshots and model registry. Do not copy a WAL database file alone while writers run. Test restoration on a separate database path via CONCORD_DB. No external infrastructure or production server has been modified.
+Back up SQLite using Python sqlite3.Connection.backup while live, or stop API/worker and copy database together with raw manifests, snapshots and model registry. Do not copy a WAL database file alone while writers run. Test restoration on a separate database path via ENTITYLENS_DB. No external infrastructure or production server has been modified.
 
 ## CI
 
@@ -39,3 +39,17 @@ Review API requests require context_version from the impact endpoint. It binds t
 Confirmation saves immutable record payloads in decision_records. Canonical fields use those reviewed payloads. If a current source version changes, the entity is marked needs_review and excluded from normal export; historical values remain visible. Missing legacy historical payloads are explicitly marked unavailable, rather than reconstructed as reviewed current data. Undo affected links and rerun matching to investigate the new versions.
 
 The worker validates source versions and lease expiry before publishing. Candidates no longer returned are retired from the pending queue; accepted decisions remain intact. Jobs cannot falsely report successful retries/cancellation of completed work. Street-number suffixes and explicit unit identifiers are checked conservatively during merging.
+
+## Upgrade to the EntityLens name
+
+The application package is `entitylens`, configuration uses `ENTITYLENS_DB` and `ENTITYLENS_URL`, and the default database is `entitylens-v1.db`. Stop the previous API and worker before upgrading. Copy an existing workspace with the SQLite backup API; do not copy only its main file while WAL writers run:
+
+```sh
+.venv/bin/python scripts/migrate_database.py concord-v1.db entitylens-v1.db
+make web
+make dev
+```
+
+The migration preserves the source and refuses to overwrite an existing target. For a custom database, pass its real path and set `ENTITYLENS_DB` for both services. Existing Docker volume databases can be migrated the same way to `/state/entitylens.db` while both old services are stopped; preserve the state volume. No table, annotation or entity schema changes accompany the rename.
+
+Historical evaluation reports intentionally retain the source paths and code revision from their actual training run. Those immutable provenance fields can contain the former package name. Current training scripts reference `entitylens/`; renaming does not constitute another training experiment or change the reported metrics.

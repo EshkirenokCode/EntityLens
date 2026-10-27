@@ -2,7 +2,7 @@
 
 Reviewed 2026-10-24. The application is an analyst tool: the primary task is comparing source observations and making reversible decisions. A marketing hero, oversized metrics and low-contrast decoration weakened the earlier interface.
 
-| Reference | Observed pattern | Application in Concord |
+| Reference | Observed pattern | Application in EntityLens |
 |---|---|---|
 | [Dribbble: data reconciliation](https://dribbble.com/search/data-reconciliation) | Dense comparison tables and source panels; inspected gallery visually | Aligned A/B source panels, compact candidate rows, explicit field labels |
 | [Mobbin dashboard study](https://mobbin.com/blog/what-good-dashboard-design-looks-like) | Dashboard hierarchy should support decisions, rather than simply display data | Secondary context reduced; review dominates the page |

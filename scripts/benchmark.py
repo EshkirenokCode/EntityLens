@@ -3,7 +3,7 @@
 import httpx, time, json, statistics, platform, os
 from pathlib import Path
 
-url = os.environ.get("CONCORD_URL", "http://127.0.0.1:8765")
+url = os.environ.get("ENTITYLENS_URL", "http://127.0.0.1:8765")
 out = {}
 with httpx.Client(base_url=url, timeout=60) as c:
     for path in [

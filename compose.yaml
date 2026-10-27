@@ -3,7 +3,7 @@ services:
     build: .
     ports: ["127.0.0.1:8765:8765"]
     environment:
-      CONCORD_DB: /state/concord.db
+      ENTITYLENS_DB: /state/entitylens.db
     volumes:
       - state:/state
       - ./data:/app/data
@@ -11,9 +11,9 @@ services:
     restart: unless-stopped
   worker:
     build: .
-    command: ["python", "-m", "concord.worker"]
+    command: ["python", "-m", "entitylens.worker"]
     environment:
-      CONCORD_DB: /state/concord.db
+      ENTITYLENS_DB: /state/entitylens.db
       OMP_NUM_THREADS: "2"
     volumes:
       - state:/state

@@ -1,7 +1,7 @@
 import json
 import pytest
-from concord import store
-from concord.features import features, distance, candidates
+from entitylens import store
+from entitylens.features import features, distance, candidates
 
 
 @pytest.fixture
