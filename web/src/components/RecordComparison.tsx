@@ -81,7 +81,7 @@ export function RecordComparison({
         </tbody>
       </table>
       <details className="recordmeta">
-        <summary>Source identifiers & versions</summary>
+        <summary>Source IDs and versions</summary>
         <dl>
           {[a, b].map((r, i) => (
             <Fragment key={r.id}>
@@ -94,8 +94,8 @@ export function RecordComparison({
           ))}
         </dl>
         <p>
-          Highlighted differences compare displayed values only; they do not
-          establish place identity.
+          Highlighted cells contain different displayed values. Check the source
+          evidence before deciding whether the places differ.
         </p>
       </details>
     </>

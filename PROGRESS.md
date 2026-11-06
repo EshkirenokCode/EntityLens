@@ -59,3 +59,9 @@ Validation: 46 regression tests and production build pass. Desktop 1280 × 720 a
 ## EntityLens naming — 2026-10-27
 
 Unified product branding, Python package, imports, environment variables, frontend package, exports, container commands and documentation under EntityLens. Copied the existing SQLite workspace through the backup API into entitylens-v1.db and retained the original database. Added migration coverage for committed WAL data, history preservation, missing sources and overwrite refusal. 48 tests and the frontend build pass; existing trained artifacts and historical experiment provenance are preserved without retraining.
+
+## Interface review, 6 November 2026
+
+Replaced the sidebar with top navigation, widened source comparison and adjusted typography and contrast. Rewrote interface descriptions and source observations. Added direct note focus, visible blocking reasons at the actions, numeric disagreement display and phone scroll reset. Existing review safeguards remain in place.
+
+48 regression tests and the production frontend build pass. Desktop and phone browser checks covered navigation, notes, blocked links, search, history and direct links. Training artifacts and evaluation metrics were not changed. Details and current screenshots are in docs/interface-review-2026-11-06.md.

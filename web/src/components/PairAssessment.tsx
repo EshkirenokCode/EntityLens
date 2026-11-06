@@ -33,16 +33,14 @@ export function PairAssessment({
   return (
     <section className="observations" aria-label="Pair assessment">
       <div className="assessmenthead">
-        <h3>Evidence summary</h3>
+        <h3>Source checks</h3>
         <span>
           {evidence.distance_m === null
             ? "Distance unavailable"
             : `${new Intl.NumberFormat("en", { maximumFractionDigits: 1 }).format(evidence.distance_m)} m apart`}
         </span>
       </div>
-      <p className="muted">
-        Observed facts, not a calibrated match probability.
-      </p>
+      <p className="muted">Review the source observations below.</p>
       <div className="scorecompare">
         <span>
           {model ? "Model" : "Rule"} score <b>{score.toFixed(3)}</b>
@@ -53,6 +51,9 @@ export function PairAssessment({
           </span>
         )}
       </div>
+      <p className="scoreexplanation">
+        Scores rank candidate pairs. They are uncalibrated.
+      </p>
       <ul>
         {evidence.signals.map((text) => (
           <li className="signal" key={text}>
@@ -75,13 +76,11 @@ export function PairAssessment({
       </ul>
       {blockers?.length > 0 && (
         <div className="mergeblocked" role="status">
-          <strong>Same place is blocked</strong>
+          <strong>Link blocked</strong>
           {blockers.map((item, i) => (
             <p key={i}>{item.message}</p>
           ))}
-          <small>
-            Different places and Unsure remain available for current proposals.
-          </small>
+          <small>Resolve these conflicts before linking the records.</small>
         </div>
       )}
     </section>

@@ -4,7 +4,7 @@ An ML workbench for comparing independent place catalogs, reviewing uncertain ma
 
 EntityLens currently runs locally on real Lower Manhattan data: **2,222 NYC DOHMH establishments**, **4,896 Overture food and drink places**, and **66,660 candidate pairs**. A CPU-trained gradient boosting classifier ranks pairs. Analysts retain control over every link.
 
-![EntityLens review queue and source comparison](docs/screenshots/redesign-desktop-2026-10-27.png)
+![EntityLens review queue and source comparison](docs/screenshots/review-desktop-2026-11-06.png)
 
 ## Run locally
 
@@ -58,3 +58,5 @@ Data attribution: NYC Department of Health and Mental Hygiene; Overture Maps Fou
 [Latest analyst workflow improvements](docs/workflow-improvements-2026-10-26.md)
 
 [Workbench redesign and product references](docs/redesign-2026-10-27.md)
+
+[Current interface and browser verification](docs/interface-review-2026-11-06.md)

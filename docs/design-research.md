@@ -18,3 +18,7 @@ Portfolio judgment: suitable to demonstrate an honest local ML engineering proto
 ## Redesign — 2026-10-27
 
 The previous neutral workbench still repeated context and used independent cards for source fields. The new implementation uses a persistent inbox, a field-aligned comparison table, a decision footer and a separate narrow-screen detail view. Current shipped-product references, access boundaries and implementation decisions are documented in [the redesign record](redesign-2026-10-27.md). The earlier blue treatment described above is historical.
+
+## Interface review, 6 November 2026
+
+Current layout and verification are documented in [the interface review](interface-review-2026-11-06.md). Top navigation replaces the sidebar. Source comparison has more room, copy names concrete actions, and score presentation distinguishes source observations from the model ranking. Earlier screenshots describe previous versions.

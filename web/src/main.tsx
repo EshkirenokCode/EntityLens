@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import {
-  Layers,
   GitMerge,
   Database,
-  ChartNoAxesCombined,
   Search,
   ArrowRight,
   Check,
@@ -12,12 +10,10 @@ import {
   HelpCircle,
   Undo2,
   MapPin,
-  ChevronRight,
   RefreshCw,
   Download,
   ExternalLink,
   ArrowLeft,
-  Inbox,
 } from "lucide-react";
 import "./style.css";
 import { PairAssessment, type GroupImpact } from "./components/PairAssessment";
@@ -264,6 +260,11 @@ function App() {
     if (comparisonScroll.current) comparisonScroll.current.scrollTop = 0;
   }, [p?.id]);
   useEffect(() => {
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      window.scrollTo({ top: 0 });
+    }
+  }, [mobileInspect, p?.id]);
+  useEffect(() => {
     queueList.current
       ?.querySelector<HTMLElement>('[aria-pressed="true"]')
       ?.scrollIntoView({ block: "nearest" });
@@ -351,87 +352,66 @@ function App() {
   }, [pairs, busy, opening, opened, loading, page]);
   return (
     <div className={`app ${page === "Review" ? "reviewpage" : ""}`}>
-      <aside className="sidebar">
-        <a className="brand" href="/">
-          <div className="brandmark">
-            <Layers size={22} />
-          </div>
-          EntityLens<span>WORKBENCH</span>
+      <header className="appbar">
+        <a className="brand" href="/" aria-label="EntityLens home">
+          Entity<span>Lens</span>
         </a>
-        <div className="workspace">
-          <span className="avatar">NY</span>
-          <div>
-            Lower Manhattan<small>Place resolution workspace</small>
-          </div>
-        </div>
-        <p className="navlabel">WORKSPACE</p>
-        <nav>
+        <nav aria-label="Application pages">
           {[
-            ["Review", Inbox],
-            ["Sources & Runs", Database],
-            ["Entities", Layers],
-            ["Evaluation", ChartNoAxesCombined],
-          ].map(([name, Icon]: any) => (
+            ["Review", "Review"],
+            ["Entities", "Places"],
+            ["Sources & Runs", "Sources and runs"],
+            ["Evaluation", "Model results"],
+          ].map(([name, label]) => (
             <button
               disabled={busy}
-              aria-label={name}
+              aria-label={label}
               aria-current={page === name ? "page" : undefined}
               className={page === name ? "active" : ""}
               key={name}
               onClick={() => setPage(name)}
             >
-              <Icon size={18} />
-              <span>{name === "Review" ? "Review queue" : name}</span>
+              {label}
             </button>
           ))}
         </nav>
-        <div className="datasetnav">
-          <p className="navlabel">CONNECTED SOURCES</p>
-          <div>
-            <span className="sourceinitial">N</span>NYC DOHMH
-          </div>
-          <div>
-            <span className="sourceinitial">O</span>Overture Places
-          </div>
-          <small>{fmt(status.records)} records · Lower Manhattan</small>
-        </div>
-        <div className="sidebarbottom">
-          <span className="dot" /> Local workspace
-          <small>Review-only decision policy</small>
-          <div className="profile">
-            <span className="avatar">IG</span>
-            <div>
-              Ilia Gulevskii<small>Workspace owner</small>
-            </div>
-          </div>
-        </div>
-      </aside>
+        <span className="appmode">
+          <span className="dot" />
+          Local workspace
+        </span>
+      </header>
       <main>
-        <header>
-          <div className="breadcrumb">
-            Lower Manhattan <ChevronRight size={13} />
-            <strong>{page}</strong>
-          </div>
-          <span className="local">
-            <span className="dot" /> REVIEW ONLY
-          </span>
-        </header>
         <div className="content">
           <div className="title">
             <div>
-              <h1>{page === "Review" ? "Review queue" : page}</h1>
+              <h1>
+                {page === "Review"
+                  ? "Compare places"
+                  : page === "Entities"
+                    ? "Reviewed places"
+                    : page === "Sources & Runs"
+                      ? "Sources and runs"
+                      : "Model results"}
+              </h1>
               <p>
                 {page === "Review"
-                  ? "Decide which records belong to the same physical place."
+                  ? "Check both source records before linking a pair."
                   : page === "Evaluation"
-                    ? "Measured results, reproducible runs, explicit limitations."
+                    ? "Compare the trained model with the rule baseline."
                     : page === "Entities"
-                      ? "Confirmed places with complete source lineage."
-                      : "Independent catalogs. Immutable snapshots. Traceable runs."}
+                      ? "View the source records behind each reviewed place."
+                      : "Inspect imported catalogs and run matching on the current records."}
               </p>
             </div>
+            <div className="pagecontext">
+              <div>
+                <strong>Lower Manhattan</strong>
+                <span>NYC DOHMH and Overture Places</span>
+              </div>
+              <span className="recordcount">{fmt(status.records)} records</span>
+            </div>
             <button
-              className="secondary"
+              className="secondary refresh"
               aria-label="Refresh"
               onClick={refresh}
             >
@@ -453,36 +433,11 @@ function App() {
             </div>
           )}
           {toast && (
-            <div className="notice" onClick={() => V("")}>
-              {toast} ×
-            </div>
-          )}
-          {page !== "Review" && (
-            <div className="stats">
-              {[
-                [
-                  "Source records",
-                  fmt(status.records),
-                  "Across 2 independent catalogs",
-                ],
-                [
-                  "Candidate pairs",
-                  fmt(status.pairs),
-                  "Spatial + lexical retrieval",
-                ],
-                [
-                  "Reviewed pairs",
-                  fmt(status.decisions),
-                  "Evidence-backed decisions",
-                ],
-                ["Decision policy", "Review only", "Independent gold required"],
-              ].map(([a, b, c]) => (
-                <div key={a}>
-                  <small>{a}</small>
-                  <strong>{b}</strong>
-                  <span>{c}</span>
-                </div>
-              ))}
+            <div className="notice toast" role="status">
+              {toast}
+              <button onClick={() => V("")} aria-label="Dismiss message">
+                <X size={16} />
+              </button>
             </div>
           )}
           {page === "Review" && (
@@ -505,7 +460,7 @@ function App() {
                         disabled={busy}
                         aria-label="Search places"
                         maxLength={200}
-                        placeholder="Name, address or pair ID…"
+                        placeholder="Search name, address or pair ID"
                         value={q}
                         onChange={(e) => {
                           leaveOpened();
@@ -516,7 +471,7 @@ function App() {
                       />
                     </div>
                     <div className="queuefilters">
-                      <label htmlFor="queue-status">Show</label>
+                      <label htmlFor="queue-status">Status</label>
                       <select
                         id="queue-status"
                         aria-label="Review status"
@@ -537,7 +492,7 @@ function App() {
                       </select>
                     </div>
                     <div className="queuefilters">
-                      <label htmlFor="queue-order">Order</label>
+                      <label htmlFor="queue-order">Sort by</label>
                       <select
                         id="queue-order"
                         aria-label="Queue order"
@@ -552,15 +507,15 @@ function App() {
                       >
                         <option value="score">Highest score</option>
                         <option value="disagreement">
-                          Model / rule disagreement
+                          Model and rule disagreement
                         </option>
                       </select>
                     </div>
                   </div>
                   <div className="queuelabel">
-                    CANDIDATE PAIRS{" "}
+                    SOURCE RECORDS{" "}
                     <span>
-                      {queueOrder === "score" ? "SCORE ↓" : "DISAGREEMENT ↓"}
+                      {queueOrder === "score" ? "Score" : "Score gap"}
                     </span>
                   </div>
                   <div className="pairlist" aria-busy={loading} ref={queueList}>
@@ -607,9 +562,19 @@ function App() {
                             </small>
                           </div>
                           <b>
-                            {x.score.toFixed(3)}
+                            {queueOrder === "disagreement"
+                              ? x.model
+                                ? Math.abs(
+                                    x.score - (x.baseline ?? x.score),
+                                  ).toFixed(3)
+                                : "Unavailable"
+                              : x.score.toFixed(3)}
                             <small>
-                              {x.model ? "model score" : "rule score"}
+                              {queueOrder === "disagreement"
+                                ? "score gap"
+                                : x.model
+                                  ? "model score"
+                                  : "rule score"}
                             </small>
                           </b>
                           {x.status !== "REVIEW" && (
@@ -639,7 +604,7 @@ function App() {
                       Previous
                     </button>
                     <span>
-                      {total ? offset + 1 : 0}–{Math.min(offset + 40, total)}
+                      {total ? offset + 1 : 0} to {Math.min(offset + 40, total)}
                     </span>
                     <button
                       disabled={busy || loading || offset + 40 >= total}
@@ -686,9 +651,9 @@ function App() {
                             making a decision.
                           </div>
                         )}
-                        <h2>{p.a.name}</h2>
-                        <p className="muted">
-                          Compare source fields, then record your decision.
+                        <h2>{p.b.name || p.a.name}</h2>
+                        <p className="compareintro">
+                          Do these records describe the same physical location?
                         </p>
                         <RecordComparison a={p.a} b={p.b} />
                         {impact?.evidence && (
@@ -701,13 +666,11 @@ function App() {
                           />
                         )}
                         <details className="evidence">
-                          <summary>
-                            Numeric features · proposal snapshot
-                          </summary>
+                          <summary>Model inputs for this pair</summary>
                           <div className="sectiontitle">
                             <h3>Pair feature values</h3>
                             <span className="muted">
-                              Shared feature pipeline · v1
+                              Feature values at scoring time
                             </span>
                           </div>
                           {[
@@ -725,16 +688,18 @@ function App() {
                           ))}
                           <div className="hint">
                             <HelpCircle size={15} />
-                            Similarity is a model score, not a calibrated
-                            probability. Shared brand or phone does not prove
-                            branch identity.
+                            These values describe name, address and location
+                            similarity. A shared brand or phone number can
+                            belong to several branches.
                           </div>
                         </details>
                         <div className="reviewaction">
                           <div className="decisionheading">
-                            <label htmlFor="evidence-note">Your decision</label>
+                            <label htmlFor="evidence-note">
+                              Reason for your decision
+                            </label>
                             <span className="muted">
-                              Evidence note required
+                              Required before saving
                             </span>
                           </div>
                           <textarea
@@ -747,7 +712,7 @@ function App() {
                             aria-describedby={
                               noteError ? "note-error" : undefined
                             }
-                            placeholder="Add evidence: address, branch or independent confirmation…"
+                            placeholder="Explain what supports the link or separates these places."
                             value={note}
                             onChange={(e) => {
                               N(e.target.value);
@@ -774,7 +739,7 @@ function App() {
                           )}
                           <details className="impactpreview">
                             <summary>
-                              Group impact ·{" "}
+                              Records affected ·{" "}
                               {impact ? impact.members.length : "…"} source
                               records
                             </summary>
@@ -787,8 +752,8 @@ function App() {
                           </details>
                           <div className="impact">
                             <GitMerge size={14} />
-                            Same place joins the full connected group after
-                            cannot-link checks. Sources remain intact.
+                            Linking joins every record in this group. Original
+                            source records stay unchanged.
                           </div>
                         </div>
                       </>
@@ -799,7 +764,7 @@ function App() {
                     )}
                     {p && (
                       <details className="locationdetails">
-                        <summary>Location & review checklist</summary>
+                        <summary>Location and review checks</summary>
                         <div className="locationbody">
                           <h3>Location context</h3>
                           <div className="map">
@@ -827,7 +792,7 @@ function App() {
                             </span>
                           </div>
                           <p className="mapnote">
-                            Coordinate schematic · no external tiles
+                            Relative source positions. No map tiles.
                             <small>
                               Use source coordinates for exact location.
                             </small>
@@ -840,27 +805,44 @@ function App() {
                             <li>Renaming or relocation?</li>
                             <li>Enough independent evidence?</li>
                           </ul>
-                          <h3>Provenance</h3>
+                          <h3>Source versions</h3>
                           <p className="muted">
-                            Immutable source versions are checked on every
-                            confirmation. Conflicting group constraints block a
-                            merge.
+                            Each decision checks source versions and rejected
+                            links in the group. Conflicts block the link.
                           </p>
                         </div>
                       </details>
                     )}
                   </div>
                   {p && (
-                    <div className="decisiondock">
-                      <p>
-                        {busy
-                          ? "Saving decision…"
-                          : p.status !== "REVIEW"
-                            ? "Decision recorded · undo from Entities"
-                            : note.trim()
-                              ? "Evidence note added"
-                              : "Add an evidence note before deciding"}
-                      </p>
+                    <div
+                      className={`decisiondock ${impact?.merge_blockers?.length ? "hasblockers" : ""}`}
+                    >
+                      <div className="dockheading">
+                        <p>
+                          {p.source_stale
+                            ? "The sources changed. Rerun matching before reviewing this pair."
+                            : impact?.merge_blockers?.length
+                              ? impact.merge_blockers[0].message
+                              : busy
+                                ? "Saving decision…"
+                                : p.status !== "REVIEW"
+                                  ? "Decision saved. Open Places to undo it."
+                                  : note.trim()
+                                    ? "Your reason will be saved with the decision."
+                                    : "Every link needs a review and a written reason."}
+                        </p>
+                        {p.status === "REVIEW" && !busy && (
+                          <button
+                            className="textbutton"
+                            onClick={() =>
+                              document.getElementById("evidence-note")?.focus()
+                            }
+                          >
+                            Write a reason
+                          </button>
+                        )}
+                      </div>
                       <div className="actions">
                         <button
                           disabled={
@@ -905,7 +887,7 @@ function App() {
                             p.source_stale ||
                             p.status !== "REVIEW"
                           }
-                          className="secondary"
+                          className="ghost"
                           onClick={() => decide("UNCERTAIN")}
                         >
                           <HelpCircle size={16} />
@@ -927,7 +909,11 @@ function App() {
                       <Database size={18} />
                       {s.source === "nyc" ? "NYC DOHMH" : "Overture Places"}
                     </div>
-                    <h2>Immutable source snapshot</h2>
+                    <h2>
+                      {s.source === "nyc"
+                        ? "Restaurant inspections"
+                        : "Food and drink places"}
+                    </h2>
                     <p className="muted">
                       {s.source === "nyc"
                         ? "Restaurant inspection catalog, deduplicated by CAMIS."
@@ -948,8 +934,8 @@ function App() {
               <div className="panel">
                 <h2>Matching runs</h2>
                 <p className="muted">
-                  A durable worker processes queued runs. Restarting the API
-                  preserves state.
+                  Matching runs in the background. Saved jobs survive an API
+                  restart.
                 </p>
                 <button
                   className="primary"
@@ -1010,10 +996,10 @@ function App() {
             <>
               <div className="exportbar">
                 <div>
-                  <h2>Canonical directory</h2>
+                  <h2>Place directory</h2>
                   <p className="muted">
-                    Download up to 500 reviewed entities. JSON preserves field
-                    provenance; CSV provides a flat directory.
+                    Export up to 500 reviewed places. JSON includes field
+                    sources. CSV contains one row per place.
                   </p>
                 </div>
                 <div className="actions">
@@ -1042,7 +1028,7 @@ function App() {
               <div className="cards">
                 {entities.length === 0 && (
                   <div className="panel empty">
-                    No confirmed entities yet. Review a pair to create one.
+                    No reviewed places yet. Link a pair in Review to add one.
                   </div>
                 )}
                 {entities.map((e) => (
@@ -1052,9 +1038,10 @@ function App() {
                     </span>
                     {e.needs_review && (
                       <div role="alert" className="alert">
-                        Source changed since confirmation. Showing reviewed
-                        values; excluded from export. Undo the affected link and
-                        run matching before confirming again.
+                        A source changed after review. This place keeps its
+                        reviewed values and is excluded from export. Undo the
+                        affected link and rerun matching before linking it
+                        again.
                       </div>
                     )}
                     <h2>{e.fields.name.value}</h2>
@@ -1166,22 +1153,22 @@ function App() {
                 ) : (
                   <p>Training results will appear after a reproducible run.</p>
                 )}
-                <h3>What these results establish</h3>
+                <h3>What the evaluation measures</h3>
                 <p className="muted">
-                  Silver labels measure agreement with documented heuristics.
-                  They do not establish accuracy on independently reviewed
-                  places. Full retrieval recall, cluster accuracy and production
-                  precision remain unproven.
+                  The labels come from documented rules. These scores measure
+                  how closely the model reproduces those rules. Matching
+                  accuracy needs an independent human-labeled test set.
+                  Candidate recall and cluster quality remain unmeasured.
                 </p>
                 <details>
-                  <summary>Reproducibility manifest</summary>
+                  <summary>Experiment details</summary>
                   <pre>{JSON.stringify(evaluation, null, 2)}</pre>
                 </details>
               </div>
             </>
           )}
           <footer>
-            EntityLens <span>Entity resolution workspace</span>
+            EntityLens <span>Place matching</span>
             <span>NYC DOHMH · Overture Maps Foundation</span>
           </footer>
         </div>

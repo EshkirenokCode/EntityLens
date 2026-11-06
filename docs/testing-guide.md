@@ -41,7 +41,7 @@ Review defaults to Needs review. Same/Different/Unsure filters expose processed 
 
 ## New analyst tools — 2026-10-26
 
-- Open Review and inspect Evidence summary. Distance is in meters; agreement is supporting evidence, not match probability. Expand Numeric features when needed.
+- Open Review and inspect Source checks. Distance is in meters; agreement is supporting evidence, not match probability. Expand Model inputs for this pair when needed.
 - Select Model / rule disagreement in Queue order to inspect conflicting scores. Search a street address or a pair ID as well as names. Blocked merges explain the actual shared safety checks before submission.
 - Entities history shows the reviewed names and timestamp. Open pair works even when the pair is absent from the pending page. Reload the #pair=ID URL to return to it, or use Return to queue.
 - Download JSON for full field provenance or CSV for a flat directory. Downloads include up to 500 eligible entities; changed entities are excluded. The export API supports offset/limit pagination for larger local directories. CSV formula-like strings are escaped as text.
@@ -50,6 +50,11 @@ Review defaults to Needs review. Same/Different/Unsure filters expose processed 
 
 On desktop, candidates and detail scroll independently. Use J/K to move through the current page; the selected row should remain visible and the new detail should start at its heading. Decision buttons stay at the bottom of the detail panel. An empty evidence note focuses its input and shows a field error without recording a decision.
 
-Source records now share comparison rows. `Values differ` is a display hint, not an identity verdict. Expand Source identifiers & versions for lineage, Numeric features for proposal details, and Location & review checklist for the schematic.
+Source records now share comparison rows. `Values differ` is a display hint, not an identity verdict. Expand Source IDs and versions for lineage, Model inputs for this pair for proposal details, and Location and review checks for the schematic.
 
 On a narrow window, select a candidate to open its detail. Back to candidates restores the queue with the same search and filters. A direct history link opens the detail immediately; Return to queue restores queue navigation. Verify empty search and processed-status filters as well as the initial populated screen.
+
+
+## Current interface, 6 November 2026
+
+Top navigation uses Review, Places, Sources and runs, and Model results. Places contains the directory, exports and history. Write a reason moves focus to the required decision note. A blocked link explains its first conflict next to the disabled action. Model and rule disagreement shows the numeric score gap in the queue. The phone view keeps actions visible and opens each view at the top.
