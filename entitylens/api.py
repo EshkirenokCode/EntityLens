@@ -1,11 +1,11 @@
 import json, uuid, time, csv, io
 from typing import Literal
 from datetime import datetime, timezone
-from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import Response, JSONResponse
 from entitylens.evidence import describe_pair
+from entitylens.features import coordinates
 from pydantic import BaseModel, Field
 from entitylens import store
 
@@ -31,8 +31,10 @@ def status():
                 "SELECT count(*) FROM decisions WHERE undone=0"
             ).fetchone()[0],
             policy="review-only",
-            data_quality=json.loads(Path("reports/data-quality.json").read_text())
-            if Path("reports/data-quality.json").exists()
+            data_quality=json.loads(
+                (store.ROOT / "reports/data-quality.json").read_text()
+            )
+            if (store.ROOT / "reports/data-quality.json").exists()
             else None,
         )
 
@@ -42,14 +44,14 @@ def pairs(
     offset: int = Query(0, ge=0),
     limit: int = Query(40, ge=1, le=100),
     q: str = Query("", max_length=200),
-    state: str = "",
+    state: Literal["", "REVIEW", "SAME", "DIFFERENT", "UNCERTAIN", "RETIRED"] = "",
     order: Literal["score", "disagreement"] = "score",
 ):
     with store.connect() as c:
         c.execute("BEGIN")
         where = "WHERE (?='' OR json_extract(p.payload,'$.status')=?) AND (?='' OR instr(casefold(coalesce(json_extract(a.payload,'$.name'),'') || ' ' || coalesce(json_extract(b.payload,'$.name'),'') || ' ' || coalesce(json_extract(a.payload,'$.address'),'') || ' ' || coalesce(json_extract(b.payload,'$.address'),'') || ' ' || p.id),casefold(?))>0)"
         join = " FROM pairs p JOIN records a ON a.id=json_extract(p.payload,'$.left') JOIN records b ON b.id=json_extract(p.payload,'$.right') "
-        params = (state, state, q, q)
+        params = (state, state, q.strip(), q.strip())
         total = c.execute("SELECT count(*)" + join + where, params).fetchone()[0]
         ordering = (
             "json_extract(p.payload,'$.score') DESC,coalesce(json_extract(p.payload,'$.baseline'),0) DESC,p.id"
@@ -139,12 +141,22 @@ def entities():
             reviewed, changed = store.reviewed_members(c, g, rs)
             members = [reviewed[k] for k in sorted(g)]
             fields = {}
+            coordinate_records = [
+                (r, xy) for r in members if (xy := coordinates(r)) is not None
+            ]
             for field in ["name", "address", "lat", "lon", "phone"]:
-                values = [
-                    dict(record=r["id"], version=r["version"], value=r.get(field))
-                    for r in members
-                    if r.get(field) is not None and r.get(field) != ""
-                ]
+                if field in ("lat", "lon"):
+                    index = 0 if field == "lat" else 1
+                    values = [
+                        dict(record=r["id"], version=r["version"], value=xy[index])
+                        for r, xy in coordinate_records
+                    ]
+                else:
+                    values = [
+                        dict(record=r["id"], version=r["version"], value=r.get(field))
+                        for r in members
+                        if r.get(field) is not None and r.get(field) != ""
+                    ]
                 fields[field] = dict(
                     value=values[0]["value"] if values else None,
                     selected_from=values[0]["record"] if values else None,
@@ -208,7 +220,7 @@ def undo(ident: str):
 
 @app.get("/api/evaluation")
 def evaluation():
-    p = Path("reports/evaluation.json")
+    p = store.ROOT / "reports/evaluation.json"
     return (
         json.loads(p.read_text())
         if p.exists()
@@ -218,7 +230,10 @@ def evaluation():
 
 @app.get("/api/sources")
 def sources():
-    return [json.loads(p.read_text()) for p in Path("data/manifests").glob("*.json")]
+    return [
+        json.loads(p.read_text())
+        for p in sorted((store.ROOT / "data/manifests").glob("*.json"))
+    ]
 
 
 @app.post("/api/jobs")
@@ -377,14 +392,19 @@ def monitoring():
 @app.get("/api/pairs/{ident}/impact")
 def impact(ident: str):
     with store.connect() as c:
-        row = c.execute("SELECT payload FROM pairs WHERE id=?", (ident,)).fetchone()
-        if not row:
-            raise HTTPException(404, "Proposal not found")
         c.execute("BEGIN")
+        pair = pair_payload(c, ident)
         context = store.review_context(c, ident)
-        context["evidence"] = pair_payload(c, ident)["evidence"]
+        context["proposal_revision"] = pair["revision"]
+        context["current_record_versions"] = [
+            pair["a"]["version"],
+            pair["b"]["version"],
+        ]
+        context["evidence"] = pair["evidence"]
         return context
 
 
-if Path("web/dist").exists():
-    app.mount("/", StaticFiles(directory="web/dist", html=True), name="workbench")
+if (store.ROOT / "web/dist").exists():
+    app.mount(
+        "/", StaticFiles(directory=store.ROOT / "web/dist", html=True), name="workbench"
+    )

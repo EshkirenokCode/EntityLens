@@ -4,7 +4,7 @@ An ML workbench for comparing independent place catalogs, reviewing uncertain ma
 
 EntityLens currently runs locally on real Lower Manhattan data: **2,222 NYC DOHMH establishments**, **4,896 Overture food and drink places**, and **66,660 candidate pairs**. A CPU-trained gradient boosting classifier ranks pairs. Analysts retain control over every link.
 
-![EntityLens review queue and source comparison](docs/screenshots/review-desktop-2026-11-06.png)
+![EntityLens review queue and source comparison](docs/screenshots/audit-desktop-2026-11-15.jpg)
 
 ## Run locally
 
@@ -20,7 +20,7 @@ make dev
 
 Open http://127.0.0.1:8765 . `make dev` starts the API and durable worker together, using the same database; Ctrl+C stops both. For separate terminals, use `make run` and `make worker` with the same ENTITYLENS_DB. The default local database is `entitylens-v1.db` in the project directory. Interactive API documentation is at `/docs`. `make test` runs safety checks and the production frontend build.
 
-Raw catalogs and model binaries are generated locally and excluded from Git. Preserve the manifest-addressed snapshots to reproduce an exact experiment; the municipal endpoint updates over time. `make data` downloads a bounded area, not the global catalog. Downloading can take several minutes. `docker compose up --build` is an alternative launch after data preparation and training; Docker execution remains unverified in the development environment.
+Raw catalogs and model binaries are generated locally and excluded from Git. Preserve the manifest-addressed snapshots to reproduce an exact experiment; the municipal endpoint updates over time. `make data` downloads a bounded area, not the global catalog. Downloading can take several minutes. `docker compose up --build` is an alternative launch after data preparation and training. The API and worker were verified together in a local Linux ARM64 Compose run.
 
 ## Workflow
 
@@ -59,4 +59,4 @@ Data attribution: NYC Department of Health and Mental Hygiene; Overture Maps Fou
 
 [Workbench redesign and product references](docs/redesign-2026-10-27.md)
 
-[Current interface and browser verification](docs/interface-review-2026-11-06.md)
+[Latest project audit](docs/audit-2026-11-15.md) · [Interface design notes](docs/interface-review-2026-11-06.md)

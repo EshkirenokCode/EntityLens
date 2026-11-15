@@ -33,7 +33,7 @@ Open http://127.0.0.1:8765 . Existing local data has 7,118 records and 66,660 ca
 
 `make test` runs Python regressions and a TypeScript/production build. Tests use temporary databases and include transitive cannot-link, branch protection, stale source/revision, idempotency, undo, expired leases, split isolation, schema mismatch, HTTP pagination/search, job lifecycle and connection closure. `scripts/benchmark.py` runs bounded warm HTTP timings.
 
-Docker/Compose and public deployment remain unverified. Hosted CI needs a GitHub credential with workflow scope; the workflow remains a template. A Starlette TestClient deprecation warning is currently emitted by installed dependencies; requests still pass.
+A local Linux ARM64 Compose check passed. See the [project audit](audit-2026-11-15.md). Hosted CI needs a GitHub credential with workflow scope; the workflow remains a template. A Starlette TestClient deprecation warning is currently emitted by installed dependencies; requests still pass.
 
 ## Additional regression checks — 2026-10-25
 

@@ -43,10 +43,45 @@ def test_jobs_and_errors(client):
 
 
 def test_impact_and_exports(client):
-    assert len(client.get("/api/pairs/ab/impact").json()["members"]) == 2
+    impact = client.get("/api/pairs/ab/impact").json()
+    assert len(impact["members"]) == 2
+    assert impact["proposal_revision"] == 1
+    assert impact["current_record_versions"] == ["v1", "v1"]
     assert client.get("/api/pairs/absent/impact").status_code == 404
     assert client.get("/api/export?limit=0").status_code == 422
     assert client.get("/api/monitoring").json()["candidate_count"] == 1
+
+
+def test_coordinates_in_export_come_from_one_complete_observation(client):
+    with store.connect() as c:
+        for ident, lat, lon in [("a", 40.0, None), ("b", 40.5, -74.1)]:
+            record = json.loads(
+                c.execute(
+                    "SELECT payload FROM records WHERE id=?", (ident,)
+                ).fetchone()[0]
+            )
+            record.update(lat=lat, lon=lon)
+            c.execute(
+                "UPDATE records SET payload=? WHERE id=?", (json.dumps(record), ident)
+            )
+    impact = client.get("/api/pairs/ab/impact").json()
+    decision = client.post(
+        "/api/pairs/ab/decision",
+        json=dict(
+            kind="SAME",
+            rationale="Same address",
+            revision=1,
+            idempotency_key="coordinate-pair",
+            context_version=impact["context_version"],
+        ),
+    )
+    assert decision.status_code == 200
+    entity = client.get("/api/export").json()["entities"][0]
+    assert [
+        (entity["fields"][key]["value"], entity["fields"][key]["selected_from"])
+        for key in ("lat", "lon")
+    ] == [(40.5, "b"), (-74.1, "b")]
+    assert entity["members"][0]["lat"] == 40.0
 
 
 def test_connections_close(client):

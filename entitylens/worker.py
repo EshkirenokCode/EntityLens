@@ -14,7 +14,7 @@ def tick():
         c.execute("BEGIN IMMEDIATE")
         now = time.time()
         c.execute(
-            "UPDATE jobs SET status=CASE WHEN attempts>=3 THEN 'failed' ELSE 'queued' END,lease=NULL WHERE status='running' AND lease<?",
+            "UPDATE jobs SET status=CASE WHEN attempts>=3 THEN 'failed' ELSE 'queued' END,lease=NULL,error='Matching run lease expired' WHERE status='running' AND lease<=?",
             (now,),
         )
         r = c.execute(
@@ -58,9 +58,10 @@ def tick():
             c.execute("BEGIN IMMEDIATE")
             job = c.execute("SELECT * FROM jobs WHERE id=?", (ident,)).fetchone()
             if (
-                job["status"] != "running"
+                not job
+                or job["status"] != "running"
                 or job["lease"] != token
-                or time.time() > token
+                or time.time() >= token
             ):
                 raise ValueError("Job lease no longer valid")
             current = {r["id"]: r["version"] for r in store.rows(c, "records")}
@@ -69,6 +70,15 @@ def tick():
                     "Source changed during matching; retry with current snapshot"
                 )
             current_ids = {p["id"] for p in ps}
+            # Keep confirmed observations intact, but remember today's queue for undo.
+            reviewed_ids = {
+                row["pair_id"]
+                for row in c.execute("SELECT pair_id FROM decisions WHERE undone=0")
+            }
+            c.executemany(
+                "INSERT OR REPLACE INTO pair_after_undo(pair_id,payload) VALUES(?,NULL)",
+                ((pair_id,) for pair_id in reviewed_ids - current_ids),
+            )
             for row in c.execute(
                 "SELECT id,payload FROM pairs WHERE json_extract(payload,'$.status')='REVIEW'"
             ).fetchall():
@@ -80,6 +90,12 @@ def tick():
                         (json.dumps(retired), row["id"]),
                     )
             for p in ps:
+                if p["id"] in reviewed_ids:
+                    c.execute(
+                        "INSERT OR REPLACE INTO pair_after_undo(pair_id,payload) VALUES(?,?)",
+                        (p["id"], json.dumps(p)),
+                    )
+                    continue
                 old = c.execute(
                     "SELECT payload FROM pairs WHERE id=?", (p["id"],)
                 ).fetchone()

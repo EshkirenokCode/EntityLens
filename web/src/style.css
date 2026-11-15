@@ -238,7 +238,7 @@ main {
 }
 .reviewpage .title {
   margin: 0;
-  padding: 23px 28px;
+  padding: 17px 28px;
   flex-shrink: 0;
 }
 .workbench {
@@ -496,12 +496,7 @@ kbd {
   line-height: 1.3;
   letter-spacing: -0.7px;
   overflow-wrap: anywhere;
-}
-.compareintro {
-  color: #647082;
-  font-size: 12px;
-  margin: 7px 0 22px;
-  line-height: 1.6;
+  margin-bottom: 16px;
 }
 .mobileback {
   display: none;
@@ -518,7 +513,7 @@ kbd {
 }
 .recordtable th,
 .recordtable td {
-  padding: 12px;
+  padding: 10px 12px;
   border-bottom: 1px solid #e0e5eb;
   text-align: left;
   vertical-align: top;
@@ -639,13 +634,9 @@ summary {
   font: 11px var(--mono);
   white-space: nowrap;
 }
-.observations > .muted {
-  grid-column: 1;
-  font-size: 11px;
-}
 .scorecompare {
   grid-column: 2;
-  grid-row: 2 / span 2;
+  grid-row: 2;
   padding: 3px 0 5px 17px;
   border-left: 1px solid var(--line);
 }
@@ -664,6 +655,7 @@ summary {
 }
 .scoreexplanation {
   grid-column: 2;
+  grid-row: 3;
   padding-left: 17px;
   font-size: 10px;
   line-height: 1.6;
@@ -671,7 +663,7 @@ summary {
 }
 .observations ul {
   grid-column: 1;
-  grid-row: 3 / span 2;
+  grid-row: 2 / span 2;
   list-style: none;
   padding: 0;
   margin: 7px 0 0;
@@ -1326,10 +1318,6 @@ footer > span:last-child {
   }
   .comparisonbody > h2 {
     font-size: 23px;
-  }
-  .compareintro {
-    font-size: 12px;
-    margin-bottom: 21px;
   }
   .recordtable .propertycol {
     width: 72px;

@@ -28,6 +28,7 @@ def init():
  CREATE TABLE IF NOT EXISTS record_versions(record_id TEXT,version TEXT,payload TEXT,observed REAL,PRIMARY KEY(record_id,version));
  CREATE TABLE IF NOT EXISTS records(id TEXT PRIMARY KEY,payload TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS pairs(id TEXT PRIMARY KEY,payload TEXT NOT NULL,revision INTEGER NOT NULL DEFAULT 1);
+ CREATE TABLE IF NOT EXISTS pair_after_undo(pair_id TEXT PRIMARY KEY REFERENCES pairs(id),payload TEXT);
  CREATE TABLE IF NOT EXISTS decisions(id TEXT PRIMARY KEY,pair_id TEXT,kind TEXT,rationale TEXT,created REAL,undone INTEGER DEFAULT 0,idempotency TEXT UNIQUE);
  CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,kind TEXT,payload TEXT,created REAL);
  CREATE TABLE IF NOT EXISTS decision_records(decision_id TEXT,record_id TEXT,payload TEXT NOT NULL,PRIMARY KEY(decision_id,record_id));
@@ -146,6 +147,8 @@ def decide(pair_id, kind, rationale, revision, key, context_version=None):
             "SELECT 1 FROM decisions WHERE pair_id=? AND undone=0", (pair_id,)
         ).fetchone():
             raise ValueError("Undo the existing decision first")
+        if p["status"] != "REVIEW":
+            raise ValueError("This pair is no longer in the review queue")
         if (
             context_version is not None
             and review_context(c, pair_id)["context_version"] != context_version
@@ -208,7 +211,17 @@ def undo(ident):
             "SELECT payload FROM pairs WHERE id=?", (d["pair_id"],)
         ).fetchone()
         p = json.loads(row[0])
-        p["status"] = "REVIEW"
+        replacement = c.execute(
+            "SELECT payload FROM pair_after_undo WHERE pair_id=?", (d["pair_id"],)
+        ).fetchone()
+        if replacement:
+            if replacement["payload"] is None:
+                p["status"] = "RETIRED"
+            else:
+                p = json.loads(replacement["payload"])
+            c.execute("DELETE FROM pair_after_undo WHERE pair_id=?", (d["pair_id"],))
+        else:
+            p["status"] = "REVIEW"
         c.execute(
             "UPDATE pairs SET payload=?,revision=revision+1 WHERE id=?",
             (json.dumps(p), d["pair_id"]),

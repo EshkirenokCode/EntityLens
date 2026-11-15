@@ -1,4 +1,4 @@
-import json, time
+import hashlib, json, time
 import pytest
 from entitylens import store
 
@@ -120,7 +120,9 @@ def test_worker_retires_removed_candidates(sample, monkeypatch):
 
     monkeypatch.setattr(worker, "candidates", lambda *args: iter([]))
     monkeypatch.setattr(worker, "score_pairs", lambda *args: None)
-    store.decide("bc", "DIFFERENT", "Preserved human decision", 1, "preserve-rejection")
+    decision = store.decide(
+        "bc", "DIFFERENT", "Preserved human decision", 1, "preserve-rejection"
+    )
     with store.connect() as c:
         c.execute(
             "INSERT INTO jobs(id,status,created) VALUES('retire','queued',?)",
@@ -131,6 +133,50 @@ def test_worker_retires_removed_candidates(sample, monkeypatch):
         ps = {r["id"]: r for r in store.rows(c, "pairs")}
         assert ps["ab"]["status"] == "RETIRED"
         assert ps["bc"]["status"] == "DIFFERENT"
+    with pytest.raises(ValueError, match="no longer in the review queue"):
+        store.decide("ab", "SAME", "Old proposal", 2, "retired-proposal")
+    store.undo(decision["id"])
+    with store.connect() as c:
+        ps = {r["id"]: r for r in store.rows(c, "pairs")}
+        assert ps["bc"]["status"] == "RETIRED"
+
+
+def test_undo_uses_fresh_candidate_from_latest_matching_run(sample, monkeypatch):
+    from entitylens import worker
+
+    pair_id = hashlib.sha256(b"a|b").hexdigest()[:20]
+    with store.connect() as c:
+        row = c.execute("SELECT payload FROM pairs WHERE id='ab'").fetchone()
+        proposal = dict(json.loads(row[0]), id=pair_id)
+        c.execute(
+            "INSERT INTO pairs(id,payload) VALUES(?,?)", (pair_id, json.dumps(proposal))
+        )
+    decision = store.decide(
+        pair_id, "SAME", "Originally reviewed", 1, "review-before-rerun"
+    )
+    with store.connect() as c:
+        changed = dict(sample[1], version="v2")
+        c.execute("UPDATE records SET payload=? WHERE id='b'", (json.dumps(changed),))
+        c.execute("INSERT INTO jobs(id,status,created) VALUES('rerun','queued',1)")
+    monkeypatch.setattr(
+        worker,
+        "candidates",
+        lambda left, right: iter([(left[0], right[0], [0.5] * 8, 0.5)]),
+    )
+    monkeypatch.setattr(worker, "score_pairs", lambda *args: None)
+    assert worker.tick()
+    with store.connect() as c:
+        reviewed = json.loads(
+            c.execute("SELECT payload FROM pairs WHERE id=?", (pair_id,)).fetchone()[0]
+        )
+        assert reviewed["status"] == "SAME" and reviewed["versions"] == ["v1", "v1"]
+    store.undo(decision["id"])
+    with store.connect() as c:
+        fresh = json.loads(
+            c.execute("SELECT payload FROM pairs WHERE id=?", (pair_id,)).fetchone()[0]
+        )
+        assert fresh["status"] == "REVIEW" and fresh["versions"] == ["v1", "v2"]
+        assert fresh["score"] == 0.5
 
 
 def test_worker_does_not_publish_after_lease_expiry(sample, monkeypatch):

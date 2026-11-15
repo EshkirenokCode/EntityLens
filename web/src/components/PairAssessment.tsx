@@ -12,6 +12,8 @@ export type Evidence = {
 };
 export type GroupImpact = {
   pair_id: string;
+  proposal_revision: number;
+  current_record_versions: [string, string];
   context_version: string;
   members: { id: string; name: string; address: string; version: string }[];
   merge_blockers: Finding[];
@@ -40,7 +42,6 @@ export function PairAssessment({
             : `${new Intl.NumberFormat("en", { maximumFractionDigits: 1 }).format(evidence.distance_m)} m apart`}
         </span>
       </div>
-      <p className="muted">Review the source observations below.</p>
       <div className="scorecompare">
         <span>
           {model ? "Model" : "Rule"} score <b>{score.toFixed(3)}</b>

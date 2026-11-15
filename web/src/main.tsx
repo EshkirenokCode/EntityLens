@@ -84,12 +84,24 @@ function pinStyle(a: RecordRow, b: RecordRow) {
     top: `${50 - ((a.lat - b.lat) / span) * 30}%`,
   };
 }
+const EMPTY_PAIRS: Pair[] = [];
+const PAIR_STATES: Record<string, string> = {
+  REVIEW: "Needs review",
+  SAME: "Same place",
+  DIFFERENT: "Different places",
+  UNCERTAIN: "Unsure",
+  RETIRED: "Removed from queue",
+};
 const fmt = (n: number) => new Intl.NumberFormat("en").format(n || 0);
 function App() {
   const [page, setPage] = useState("Review"),
     [mobileInspect, MI] = useState(false),
     [status, S] = useState<any>({}),
-    [pairs, P] = useState<Pair[]>([]),
+    [results, setResults] = useState<{
+      key: string;
+      items: Pair[];
+      total: number;
+    } | null>(null),
     [selected, I] = useState(0),
     [q, Q] = useState(""),
     [search, DS] = useState(""),
@@ -97,14 +109,18 @@ function App() {
     [queueOrder, QO] = useState("score"),
     [opened, OP] = useState<Pair | null>(null),
     [opening, OPENING] = useState(false),
+    [refreshingOpened, setRefreshingOpened] = useState(false),
     [exporting, EX] = useState(false),
     [previewEpoch, PE] = useState(0),
     [previewError, PRE] = useState(""),
-    [total, T] = useState(0),
     [offset, O] = useState(0),
     [error, E] = useState(""),
     [busy, B] = useState(false),
     [loading, L] = useState(true),
+    [queueError, setQueueError] = useState(""),
+    [panelError, setPanelError] = useState(""),
+    [jobsError, setJobsError] = useState(""),
+    [updatingJob, setUpdatingJob] = useState(false),
     [note, N] = useState(""),
     [noteError, NE] = useState(false),
     [toast, V] = useState(""),
@@ -118,28 +134,12 @@ function App() {
     const t = setTimeout(() => DS(q), 200);
     return () => clearTimeout(t);
   }, [q]);
-  useEffect(() => {
-    if (page !== "Sources & Runs") return;
-    let current = true;
-    const t = setInterval(
-      () =>
-        api("jobs")
-          .then((v) => {
-            if (current) J(v);
-          })
-          .catch((e) => {
-            if (current) E(String(e));
-          }),
-      2000,
-    );
-    return () => {
-      current = false;
-      clearInterval(t);
-    };
-  }, [page]);
   const pairRequest = useRef(0);
   const openPair = useCallback(async (ident: string) => {
     const request = ++pairRequest.current;
+    OP(null);
+    setRefreshingOpened(false);
+    E("");
     OPENING(true);
     setPage("Review");
     try {
@@ -154,7 +154,10 @@ function App() {
         `#pair=${encodeURIComponent(ident)}`,
       );
     } catch (e) {
-      if (request === pairRequest.current) E(String(e));
+      if (request === pairRequest.current) {
+        MI(false);
+        E(String(e));
+      }
     } finally {
       if (request === pairRequest.current) OPENING(false);
     }
@@ -163,6 +166,7 @@ function App() {
     ++pairRequest.current;
     OP(null);
     MI(false);
+    setRefreshingOpened(false);
     OPENING(false);
     window.history.replaceState(
       null,
@@ -179,6 +183,8 @@ function App() {
       else {
         ++pairRequest.current;
         OP(null);
+        MI(false);
+        setRefreshingOpened(false);
         OPENING(false);
       }
     };
@@ -211,49 +217,182 @@ function App() {
   const pendingDecision = useRef<{ signature: string; key: string } | null>(
     null,
   );
-  const refresh = useCallback(async () => {
+  const queueKey = new URLSearchParams({
+    q: search.trim(),
+    offset: String(offset),
+    state: queueState,
+    order: queueOrder,
+  }).toString();
+  const waitingForSearch = q.trim() !== search.trim();
+  const currentResults =
+    !waitingForSearch && results?.key === queueKey ? results : null;
+  const pairs = currentResults?.items ?? EMPTY_PAIRS;
+  const total = currentResults?.total ?? 0;
+  const queueLoading =
+    waitingForSearch || loading || (!currentResults && !queueError);
+
+  const refreshQueue = useCallback(async () => {
     const request = ++requestId.current;
     L(true);
+    setQueueError("");
     try {
-      const [s, p, e, h, v, src, j, detail] = await Promise.all([
-        api("status"),
-        api(
-          `pairs?q=${encodeURIComponent(search)}&offset=${offset}&state=${queueState}&order=${queueOrder}`,
-        ),
-        api("entities"),
-        api("history"),
-        api("evaluation"),
-        api("sources"),
-        api("jobs"),
-        opened?.id ? api(`pairs/${opened.id}`) : Promise.resolve(null),
-      ]);
+      const next = await api(`pairs?${queueKey}`);
       if (request !== requestId.current) return;
-      if (offset > 0 && p.total <= offset) {
-        O(Math.max(0, Math.floor((p.total - 1) / 40) * 40));
+      if (offset > 0 && next.total <= offset) {
+        O(Math.max(0, Math.floor((next.total - 1) / 40) * 40));
         return;
       }
-      if (opened?.id && detail) OP(detail);
-      S(s);
-      P(p.items);
-      I((i) => Math.min(Math.max(i, 0), Math.max(0, p.items.length - 1)));
-      T(p.total);
-      EN(e);
-      H(h);
-      EV(v);
-      SO(src);
-      J(j);
-      PE((i) => i + 1);
-      E("");
+      setResults({ key: queueKey, ...next });
+      I((i) => Math.min(i, Math.max(0, next.items.length - 1)));
     } catch (e) {
-      if (request === requestId.current) E(String(e));
+      if (request === requestId.current) setQueueError(String(e));
     } finally {
       if (request === requestId.current) L(false);
     }
-  }, [search, offset, queueState, queueOrder, opened?.id]);
+  }, [queueKey, offset]);
+
   useEffect(() => {
-    refresh();
-  }, [refresh]);
-  const p = opened || pairs[selected];
+    if (page === "Review" && !waitingForSearch) void refreshQueue();
+    return () => {
+      ++requestId.current;
+    };
+  }, [page, refreshQueue, waitingForSearch]);
+
+  const jobRequest = useRef(0);
+  const refreshJobs = useCallback(async () => {
+    const request = ++jobRequest.current;
+    try {
+      const next = await api("jobs");
+      if (request !== jobRequest.current) return;
+      J(next);
+      setJobsError("");
+    } catch (e) {
+      if (request === jobRequest.current) setJobsError(String(e));
+    }
+  }, []);
+
+  const panelRequest = useRef(0);
+  const refreshPanel = useCallback(async () => {
+    const request = ++panelRequest.current;
+    setPanelError("");
+    try {
+      if (page === "Entities") {
+        const [directory, decisions] = await Promise.all([
+          api("entities"),
+          api("history"),
+        ]);
+        if (request !== panelRequest.current) return;
+        EN(directory);
+        H(decisions);
+      } else if (page === "Evaluation") {
+        const report = await api("evaluation");
+        if (request === panelRequest.current) EV(report);
+      } else if (page === "Sources & Runs") {
+        const catalogs = await api("sources");
+        if (request === panelRequest.current) SO(catalogs);
+      }
+    } catch (e) {
+      if (request === panelRequest.current) setPanelError(String(e));
+    }
+  }, [page]);
+
+  useEffect(() => {
+    void refreshPanel();
+    return () => {
+      ++panelRequest.current;
+    };
+  }, [refreshPanel]);
+  useEffect(() => {
+    if (page !== "Sources & Runs") return;
+    void refreshJobs();
+    const timer = setInterval(refreshJobs, 2000);
+    return () => {
+      clearInterval(timer);
+      ++jobRequest.current;
+    };
+  }, [page, refreshJobs]);
+  const refreshStatus = useCallback(async () => {
+    try {
+      S(await api("status"));
+    } catch {
+      // Status is auxiliary. Each screen reports its own loading errors.
+    }
+  }, []);
+  useEffect(() => {
+    void refreshStatus();
+  }, [refreshStatus]);
+
+  async function refreshOpened() {
+    if (!opened) return;
+    const request = ++pairRequest.current;
+    setRefreshingOpened(true);
+    try {
+      const item = await api(`pairs/${encodeURIComponent(opened.id)}`);
+      if (request === pairRequest.current) OP(item);
+    } catch (e) {
+      if (request === pairRequest.current) E(String(e));
+    } finally {
+      if (request === pairRequest.current) setRefreshingOpened(false);
+    }
+  }
+
+  async function refresh() {
+    E("");
+    await Promise.all([
+      refreshStatus(),
+      refreshOpened(),
+      page === "Review" ? refreshQueue() : refreshPanel(),
+      page === "Sources & Runs" ? refreshJobs() : undefined,
+    ]);
+    PE((i) => i + 1);
+  }
+
+  async function changeJob(path: string) {
+    setUpdatingJob(true);
+    E("");
+    try {
+      await api(path, {});
+      await refreshJobs();
+    } catch (e) {
+      E(String(e));
+      await refreshJobs();
+    } finally {
+      setUpdatingJob(false);
+    }
+  }
+
+  const p = opening
+    ? undefined
+    : (opened ?? (queueError ? undefined : pairs[selected]));
+  const pairImpact =
+    p && impact?.pair_id === p.id && impact.proposal_revision === p.revision
+      ? impact
+      : null;
+  const canDecide =
+    !!p &&
+    !busy &&
+    !opening &&
+    !refreshingOpened &&
+    (opened !== null || !queueLoading) &&
+    !p.source_stale &&
+    p.status === "REVIEW" &&
+    !!pairImpact?.context_version;
+  function decisionMessage(pair: Pair) {
+    if (busy) return "Saving decision…";
+    if (pair.status === "RETIRED")
+      return "The latest matching run did not return this pair.";
+    if (pair.status !== "REVIEW")
+      return "Decision saved. Open Places to undo it.";
+    if (pair.source_stale)
+      return "The sources changed. Rerun matching before reviewing this pair.";
+    if (previewError)
+      return "The source checks could not load. Refresh this pair.";
+    if (!pairImpact) return "Checking source records…";
+    if (pairImpact.merge_blockers.length)
+      return pairImpact.merge_blockers[0].message;
+    if (note.trim()) return "Your reason will be saved with the decision.";
+    return "Every link needs a review and a written reason.";
+  }
   useEffect(() => {
     N("");
     NE(false);
@@ -275,8 +414,19 @@ function App() {
     PRE("");
     if (p)
       api(`pairs/${p.id}/impact`)
-        .then((v) => {
-          if (current) IM(v);
+        .then((v: GroupImpact) => {
+          if (!current) return;
+          if (
+            v.proposal_revision !== p.revision ||
+            v.current_record_versions[0] !== p.a.version ||
+            v.current_record_versions[1] !== p.b.version
+          ) {
+            PRE(
+              "The pair changed while loading. Refresh to see the current records.",
+            );
+            return;
+          }
+          IM(v);
         })
         .catch((e) => {
           if (current) PRE(String(e));
@@ -284,36 +434,24 @@ function App() {
     return () => {
       current = false;
     };
-  }, [p?.id, p?.revision, previewEpoch]);
+  }, [p?.id, p?.revision, p?.a.version, p?.b.version, previewEpoch]);
   async function decide(kind: string) {
-    if (
-      !p ||
-      busy ||
-      opening ||
-      loading ||
-      !impact?.context_version ||
-      impact.pair_id !== p.id ||
-      p.source_stale ||
-      p.status !== "REVIEW"
-    )
-      return;
-    if (kind === "SAME" && impact.merge_blockers?.length) {
-      E(impact.merge_blockers[0].message);
-      return;
-    }
+    if (!p || !canDecide || !pairImpact) return;
+    if (kind === "SAME" && pairImpact.merge_blockers.length) return;
     if (!note.trim()) {
       NE(true);
       document.getElementById("evidence-note")?.focus();
       return;
     }
     B(true);
+    E("");
     try {
       const signature = JSON.stringify([
         p.id,
         p.revision,
         kind,
         note,
-        impact.context_version,
+        pairImpact.context_version,
       ]);
       if (pendingDecision.current?.signature !== signature)
         pendingDecision.current = { signature, key: crypto.randomUUID() };
@@ -322,12 +460,13 @@ function App() {
         rationale: note,
         revision: p.revision,
         idempotency_key: pendingDecision.current.key,
-        context_version: impact.context_version,
+        context_version: pairImpact.context_version,
       });
       pendingDecision.current = null;
       V("Decision recorded. Source records preserved.");
       N("");
-      await refresh();
+      await Promise.all([refreshQueue(), refreshOpened()]);
+      PE((i) => i + 1);
     } catch (e) {
       E(String(e));
     } finally {
@@ -336,7 +475,17 @@ function App() {
   }
   useEffect(() => {
     function key(e: KeyboardEvent) {
-      if (busy || opening || loading || page !== "Review" || opened) return;
+      if (
+        busy ||
+        opening ||
+        queueLoading ||
+        page !== "Review" ||
+        opened ||
+        e.altKey ||
+        e.ctrlKey ||
+        e.metaKey
+      )
+        return;
       if (
         ["INPUT", "TEXTAREA", "SELECT"].includes(
           (e.target as HTMLElement).tagName,
@@ -349,7 +498,7 @@ function App() {
     }
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [pairs, busy, opening, opened, loading, page]);
+  }, [pairs, busy, opening, opened, queueLoading, page]);
   return (
     <div className={`app ${page === "Review" ? "reviewpage" : ""}`}>
       <header className="appbar">
@@ -408,7 +557,11 @@ function App() {
                 <strong>Lower Manhattan</strong>
                 <span>NYC DOHMH and Overture Places</span>
               </div>
-              <span className="recordcount">{fmt(status.records)} records</span>
+              <span className="recordcount">
+                {status.records == null
+                  ? "Record count unavailable"
+                  : `${fmt(status.records)} records`}
+              </span>
             </div>
             <button
               className="secondary refresh"
@@ -419,9 +572,14 @@ function App() {
               Refresh
             </button>
           </div>
-          {error && (
+          {(error ||
+            panelError ||
+            (page === "Sources & Runs" && jobsError) ||
+            (page === "Review" && queueError)) && (
             <div role="alert" className="alert">
-              {error}
+              {error ||
+                panelError ||
+                (page === "Sources & Runs" ? jobsError : queueError)}
               <button
                 onClick={() => {
                   E("");
@@ -488,6 +646,7 @@ function App() {
                         <option value="SAME">Same place</option>
                         <option value="DIFFERENT">Different places</option>
                         <option value="UNCERTAIN">Unsure</option>
+                        <option value="RETIRED">Removed from queue</option>
                         <option value="">All pairs</option>
                       </select>
                     </div>
@@ -518,13 +677,17 @@ function App() {
                       {queueOrder === "score" ? "Score" : "Score gap"}
                     </span>
                   </div>
-                  <div className="pairlist" aria-busy={loading} ref={queueList}>
-                    {error && pairs.length === 0 ? (
+                  <div
+                    className="pairlist"
+                    aria-busy={queueLoading}
+                    ref={queueList}
+                  >
+                    {queueError && !waitingForSearch && !loading ? (
                       <div className="empty">
                         Data unavailable.
                         <small>Check the local service and retry.</small>
                       </div>
-                    ) : loading ? (
+                    ) : queueLoading ? (
                       <div className="empty">Loading records…</div>
                     ) : pairs.length === 0 ? (
                       <div className="empty">
@@ -580,12 +743,10 @@ function App() {
                           {x.status !== "REVIEW" && (
                             <em
                               className={
-                                x.status === "REVIEW" ? "tag" : "tag done"
+                                x.status === "RETIRED" ? "tag" : "tag done"
                               }
                             >
-                              {x.status === "REVIEW"
-                                ? "Needs review"
-                                : x.status}
+                              {PAIR_STATES[x.status] ?? x.status}
                             </em>
                           )}
                         </button>
@@ -594,7 +755,7 @@ function App() {
                   </div>
                   <div className="pagination">
                     <button
-                      disabled={busy || loading || offset === 0}
+                      disabled={busy || queueLoading || offset === 0}
                       onClick={() => {
                         leaveOpened();
                         O(Math.max(0, offset - 40));
@@ -607,7 +768,7 @@ function App() {
                       {total ? offset + 1 : 0} to {Math.min(offset + 40, total)}
                     </span>
                     <button
-                      disabled={busy || loading || offset + 40 >= total}
+                      disabled={busy || queueLoading || offset + 40 >= total}
                       onClick={() => {
                         leaveOpened();
                         O(offset + 40);
@@ -641,7 +802,7 @@ function App() {
                       <>
                         <div className="comparehead">
                           <span className="tag">
-                            {p.status === "REVIEW" ? "Needs review" : p.status}
+                            {PAIR_STATES[p.status] ?? p.status}
                           </span>
                           <span className="muted">Pair {p.id.slice(0, 8)}</span>
                         </div>
@@ -652,14 +813,15 @@ function App() {
                           </div>
                         )}
                         <h2>{p.b.name || p.a.name}</h2>
-                        <p className="compareintro">
-                          Do these records describe the same physical location?
-                        </p>
                         <RecordComparison a={p.a} b={p.b} />
-                        {impact?.evidence && (
+                        {pairImpact?.evidence && (
                           <PairAssessment
-                            evidence={impact.evidence}
-                            blockers={impact.merge_blockers}
+                            evidence={pairImpact.evidence}
+                            blockers={
+                              p.status === "REVIEW"
+                                ? pairImpact.merge_blockers
+                                : []
+                            }
                             model={p.model}
                             score={p.score}
                             baseline={p.baseline}
@@ -732,18 +894,16 @@ function App() {
                           {previewError && (
                             <div role="alert" className="alert">
                               Group preview unavailable: {previewError}
-                              <button onClick={() => PE((i) => i + 1)}>
-                                Retry preview
-                              </button>
+                              <button onClick={refresh}>Refresh pair</button>
                             </div>
                           )}
                           <details className="impactpreview">
                             <summary>
                               Records affected ·{" "}
-                              {impact ? impact.members.length : "…"} source
-                              records
+                              {pairImpact ? pairImpact.members.length : "…"}{" "}
+                              source records
                             </summary>
-                            {impact?.members.map((r: any) => (
+                            {pairImpact?.members.map((r: any) => (
                               <p key={r.id}>
                                 {r.name} · {r.address}
                                 <small>{r.id}</small>
@@ -759,7 +919,11 @@ function App() {
                       </>
                     ) : (
                       <div className="empty">
-                        Select a pair to inspect source evidence.
+                        {opening
+                          ? "Loading the linked pair."
+                          : queueLoading
+                            ? "Loading the review queue."
+                            : "Select a pair to compare its source records."}
                       </div>
                     )}
                     {p && (
@@ -816,23 +980,11 @@ function App() {
                   </div>
                   {p && (
                     <div
-                      className={`decisiondock ${impact?.merge_blockers?.length ? "hasblockers" : ""}`}
+                      className={`decisiondock ${p.status === "REVIEW" && pairImpact?.merge_blockers.length ? "hasblockers" : ""}`}
                     >
                       <div className="dockheading">
-                        <p>
-                          {p.source_stale
-                            ? "The sources changed. Rerun matching before reviewing this pair."
-                            : impact?.merge_blockers?.length
-                              ? impact.merge_blockers[0].message
-                              : busy
-                                ? "Saving decision…"
-                                : p.status !== "REVIEW"
-                                  ? "Decision saved. Open Places to undo it."
-                                  : note.trim()
-                                    ? "Your reason will be saved with the decision."
-                                    : "Every link needs a review and a written reason."}
-                        </p>
-                        {p.status === "REVIEW" && !busy && (
+                        <p>{decisionMessage(p)}</p>
+                        {p.status === "REVIEW" && !p.source_stale && !busy && (
                           <button
                             className="textbutton"
                             onClick={() =>
@@ -846,14 +998,7 @@ function App() {
                       <div className="actions">
                         <button
                           disabled={
-                            busy ||
-                            opening ||
-                            loading ||
-                            !impact?.context_version ||
-                            impact.pair_id !== p.id ||
-                            p.source_stale ||
-                            p.status !== "REVIEW" ||
-                            !!impact?.merge_blockers?.length
+                            !canDecide || !!pairImpact?.merge_blockers.length
                           }
                           className="primary"
                           onClick={() => decide("SAME")}
@@ -862,15 +1007,7 @@ function App() {
                           Same place
                         </button>
                         <button
-                          disabled={
-                            busy ||
-                            opening ||
-                            loading ||
-                            !impact?.context_version ||
-                            impact.pair_id !== p.id ||
-                            p.source_stale ||
-                            p.status !== "REVIEW"
-                          }
+                          disabled={!canDecide}
                           className="secondary"
                           onClick={() => decide("DIFFERENT")}
                         >
@@ -878,15 +1015,7 @@ function App() {
                           Different places
                         </button>
                         <button
-                          disabled={
-                            busy ||
-                            opening ||
-                            loading ||
-                            !impact?.context_version ||
-                            impact.pair_id !== p.id ||
-                            p.source_stale ||
-                            p.status !== "REVIEW"
-                          }
+                          disabled={!canDecide}
                           className="ghost"
                           onClick={() => decide("UNCERTAIN")}
                         >
@@ -927,7 +1056,7 @@ function App() {
                       <dt>SHA-256</dt>
                       <dd className="hash">{s.sha256}</dd>
                     </dl>
-                    <span className="tag done">Snapshot verified</span>
+                    <span className="tag done">Snapshot manifest</span>
                   </article>
                 ))}
               </div>
@@ -939,14 +1068,13 @@ function App() {
                 </p>
                 <button
                   className="primary"
-                  onClick={async () => {
-                    try {
-                      await api("jobs", {});
-                      await refresh();
-                    } catch (e) {
-                      E(String(e));
-                    }
-                  }}
+                  disabled={
+                    updatingJob ||
+                    jobs.some(
+                      (j) => j.status === "queued" || j.status === "running",
+                    )
+                  }
+                  onClick={() => changeJob("jobs")}
                 >
                   Queue matching run <ArrowRight size={15} />
                 </button>
@@ -960,14 +1088,8 @@ function App() {
                     {["queued", "running"].includes(j.status) && (
                       <button
                         className="secondary"
-                        onClick={async () => {
-                          try {
-                            await api(`jobs/${j.id}/cancel`, {});
-                            await refresh();
-                          } catch (e) {
-                            E(String(e));
-                          }
-                        }}
+                        disabled={updatingJob}
+                        onClick={() => changeJob(`jobs/${j.id}/cancel`)}
                       >
                         Cancel
                       </button>
@@ -975,14 +1097,8 @@ function App() {
                     {["failed", "cancelled"].includes(j.status) && (
                       <button
                         className="secondary"
-                        onClick={async () => {
-                          try {
-                            await api(`jobs/${j.id}/retry`, {});
-                            await refresh();
-                          } catch (e) {
-                            E(String(e));
-                          }
-                        }}
+                        disabled={updatingJob}
+                        onClick={() => changeJob(`jobs/${j.id}/retry`)}
                       >
                         Retry
                       </button>
@@ -1072,7 +1188,7 @@ function App() {
                 )}
                 {history.map((h) => (
                   <div className="history" key={h.id}>
-                    <strong>{h.kind}</strong>
+                    <strong>{PAIR_STATES[h.kind] ?? h.kind}</strong>
                     <div className="historydetail">
                       <strong>
                         {h.record_names?.join(" ↔ ") || h.pair_id}
@@ -1093,13 +1209,21 @@ function App() {
                     </button>
                     <button
                       className="secondary"
-                      disabled={!!h.undone}
+                      disabled={busy || !!h.undone}
                       onClick={async () => {
+                        B(true);
+                        E("");
                         try {
                           await api(`decisions/${h.id}/undo`, {});
-                          await refresh();
+                          await Promise.all([
+                            refreshPanel(),
+                            refreshQueue(),
+                            refreshOpened(),
+                          ]);
                         } catch (e) {
                           E(String(e));
+                        } finally {
+                          B(false);
                         }
                       }}
                     >
